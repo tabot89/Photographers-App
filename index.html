@@ -9,7 +9,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js">
     </script>
-    <!-- إعدادات PWA لتثبيت التطبيق على الهواتف -->
+    <!-- إضافات لتثبيت التطبيق على الهاتف (PWA) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0d1b2a">
     <style>
@@ -1947,7 +1947,7 @@
         }
 
         // ============================================================
-        // دالة اختبار الاتصال (محدثة لتستخدم JSONP وتتجاوز حظر CORS على الاستضافات)
+        // دالة اختبار الاتصال
         // ============================================================
 
         function testConnection() {
@@ -1959,8 +1959,17 @@
             
             showToast('جاري اختبار الاتصال...');
             
-            callGAS_JSONP('test', {}, function(result) {
-                if (result && result.success) {
+            fetch(url + '?action=test', {
+                method: 'GET',
+                mode: 'cors',
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
                     showToast('✅ الاتصال ناجح');
                     const statusDiv = document.getElementById('connectionStatus');
                     if (statusDiv) {
@@ -1976,16 +1985,19 @@
                     saveGDriveConfig();
                     updateSyncStatus('synced', 'متصل');
                 } else {
-                    showToast('❌ فشل الاتصال بالسيرفر');
-                    const statusDiv = document.getElementById('connectionStatus');
-                    if (statusDiv) {
-                        statusDiv.innerHTML = `
-                            <div class="connection-status error">
-                                <i class="fas fa-exclamation-circle"></i>
-                                ❌ فشل الاتصال بالسيرفر
-                            </div>
-                        `;
-                    }
+                    throw new Error(data.error || 'فشل الاتصال');
+                }
+            })
+            .catch(error => {
+                showToast('❌ فشل الاتصال: ' + error.message);
+                const statusDiv = document.getElementById('connectionStatus');
+                if (statusDiv) {
+                    statusDiv.innerHTML = `
+                        <div class="connection-status error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            ❌ فشل الاتصال: ${error.message}
+                        </div>
+                    `;
                 }
             });
         }
@@ -3315,7 +3327,7 @@
         }
 
         // ============================================================
-        // REPORTS
+        // REPORTS (تعديل مانع تفكك الكلمات العربية وأسماء الآباء في طباعة PDF)
         // ============================================================
         function generateReportHTML(title, tasks, showPhotographer, photographerName) {
             showPhotographer = (typeof showPhotographer === 'undefined') ? true : showPhotographer;
@@ -3340,6 +3352,7 @@
                 var phCellContent = '';
                 if (showPhotographer) {
                     if (t._phList && t._phList.length > 0) {
+                        // حماية كل اسم بالكامل داخل عنصر غير قابل للتفكيك (Atomic Inline-Block) لكي لا ينفصل الاسم عن الأب
                         phCellContent = t._phList.map(function(name) {
                             return '<span style="display:inline-block; white-space:nowrap; unicode-bidi:isolate;">' + name + '</span>';
                         }).join(' <span style="display:inline-block; color:#e76f51; font-weight:bold; padding:0 3px;">،</span> ');
