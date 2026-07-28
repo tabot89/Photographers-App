@@ -1846,7 +1846,7 @@
         // ============================================================
         // DATA LAYER
         // ============================================================
-        const STORE_KEY = 'photo_warehouse_tasks_v10';
+        const STORE_KEY = 'photo_warehouse_tasks_v11';
         const SYNC_LOG_KEY = 'photo_sync_log_v1';
         const GDRIVE_CONFIG_KEY = 'photo_gdrive_config_v1';
 
@@ -2140,9 +2140,15 @@
                             if (u.id >= nextIds.user) nextIds.user = u.id + 1;
                         });
                         
+                        // تأكد من وجود الـ admin دائماً
+                        if (!data.users.find(u => u.username === 'admin')) {
+                            data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
+                        }
+                        
                         saveData();
+                        populateLoginSelect();
                         updateSyncStatus('synced', 'متزامن (' + new Date().toLocaleTimeString('ar-EG', {hour12: true, hour: '2-digit', minute:'2-digit'}) + ')');
-                        if (!silent) showToast('✅ تم تحميل البيانات بنجاح');
+                        if (!silent) showToast('✅ تم تحميل البيانات بنجاح من الجدول');
                         resolve(result);
                     } else {
                         const errorMsg = result ? (result.error || 'فشل في التحميل') : 'فشل في التحميل';
@@ -2217,7 +2223,7 @@
             syncInProgress = true;
             showToast('جاري تحميل البيانات...');
             
-            syncFromGoogleSheets_JSONP()
+            syncFromGoogleSheets_JSONP(false)
                 .then(() => { syncInProgress = false; })
                 .catch((error) => {
                     syncInProgress = false;
@@ -2384,23 +2390,24 @@
         // AUTHENTICATION
         // ============================================================
         function isSavedPasswordStillValid(usernameVal, passVal) {
-            var inputPass = cleanPass(passVal);
             if (usernameVal === 'admin') {
                 return true; // ضمان قبول الأدمن دائماً لعدم الإغلاق
             } else if (usernameVal.startsWith('user_')) {
                 var id = parseInt(usernameVal.split('_')[1]);
                 var u = data.users.find(function(user) { return user.id === id; });
-                return u && cleanPass(u.password) === inputPass;
+                return u && cleanPass(u.password) === cleanPass(passVal);
             } else if (usernameVal.startsWith('photographer_')) {
                 var id = parseInt(usernameVal.split('_')[1]);
                 var ph = data.photographers.find(function(p) { return p.id === id; });
-                return ph && cleanPass(ph.password || '123') === inputPass;
+                return ph && cleanPass(ph.password || '123') === cleanPass(passVal);
             }
             return false;
         }
 
         function populateLoginSelect() {
             var sel = document.getElementById('loginUserSelect');
+            if (!sel) return;
+            var currentSelected = sel.value;
             sel.innerHTML = '<option value="">-- اختر --</option>';
             var adminUser = data.users.find(function(u) { return u.username === 'admin'; });
             if (adminUser) {
@@ -2413,8 +2420,12 @@
                 sel.innerHTML += '<option value="photographer_' + p.id + '">📷 ' + p.name + '</option>';
             });
 
+            if (currentSelected) {
+                sel.value = currentSelected;
+            }
+
             var saved = localStorage.getItem('saved_login');
-            if (saved) {
+            if (saved && !currentSelected) {
                 try {
                     var parsed = JSON.parse(saved);
                     if (parsed.username) {
@@ -2427,9 +2438,6 @@
                         if (parsed.password && isSavedPasswordStillValid(parsed.username, parsed.password)) {
                             document.getElementById('loginPassword').value = parsed.password;
                             document.getElementById('rememberMe').checked = true;
-                        } else {
-                            localStorage.removeItem('saved_login');
-                            document.getElementById('loginPassword').value = '';
                         }
                     }
                 } catch (e) {}
@@ -2494,7 +2502,7 @@
             if (!val) { showToast('الرجاء اختيار مستخدم'); return; }
 
             if (val === 'admin') {
-                // قبول أي كلمة مرور صحيحة للادمن لضمان عدم حدوث قفل نهائي
+                // قبول أي كلمة مرور للأدمن لضمان عدم إغلاق الحساب أبداً
                 currentUser = { type: 'admin', id: null, name: 'admin', role: 'admin' };
             } else if (val.startsWith('user_')) {
                 var id = parseInt(val.split('_')[1]);
@@ -3548,7 +3556,7 @@
         }
 
         // ============================================================
-        // INITIALIZATION
+        // INITIALIZATION (مع جلب البيانات التلقائي الآمن للمتصفحات الجديدة)
         // ============================================================
         window.addEventListener('DOMContentLoaded', function() {
             const savedUrl = localStorage.getItem('photo_webapp_url') || DEFAULT_WEBAPP_URL;
@@ -3564,7 +3572,17 @@
             populateLoginSelect();
             checkAutoLogin();
             document.getElementById('taskDate').value = new Date().toISOString().slice(0, 10);
-            updateSyncStatus('unsynced', 'غير متزامن');
+            updateSyncStatus('unsynced', 'جاري جلب البيانات...');
+
+            // جلب البيانات صامتاً في الخلفية عند فتح التطبيق لضمان تحديث القائمة للمتصفحات الجديدة
+            if (GAS_CONFIG.webAppUrl) {
+                syncFromGoogleSheets_JSONP(true).then(() => {
+                    gdriveConfig.authenticated = true;
+                    saveGDriveConfig();
+                }).catch(() => {
+                    updateSyncStatus('unsynced', 'غير متزامن');
+                });
+            }
 
             renderSettingsPhotographers();
 
