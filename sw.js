@@ -1,4 +1,4 @@
-const CACHE_NAME = 'photographers-v0.1';
+const CACHE_NAME = 'photographers-v0.2'; // رفع رقم الإصدار لإجبار المتصفح على التحديث
 const ASSETS = [
   './',
   './index.html',
@@ -9,15 +9,20 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting(); // فرض التثبيت الفوري
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => Promise.all(
-      keys.map(key => { if (key !== CACHE_NAME) return caches.delete(key); })
+      keys.map(key => {
+        if (key !== CACHE_NAME) {
+          return caches.delete(key); // حذف الكاش القديم بالكامل
+        }
+      })
     )).then(() => self.clients.claim())
   );
 });
