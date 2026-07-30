@@ -141,7 +141,7 @@
         <button class="btn-side" data-page="users"><i class="fas fa-users-cog"></i> <span>المستخدمين</span></button>
         <button class="btn-side" data-page="sync"><i class="fas fa-cloud-upload-alt"></i> <span>المزامنة</span></button>
         <button class="btn-side" data-page="settings"><i class="fas fa-cog"></i> <span>الإعدادات</span></button>
-        <div class="sidebar-footer"><i class="fas fa-camera"></i> V4.1</div>
+        <div class="sidebar-footer"><i class="fas fa-camera"></i> V5.0</div>
     </nav>
 
     <div class="main-content">
@@ -154,7 +154,7 @@
                 <div class="time" id="clockTime">--:-- --</div>
                 <div class="date" id="clockDate">-- -- / -- / ----</div>
             </div>
-            <div style="display:flex; align-items:center; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px; position:relative;">
                 <div class="sync-mini" id="syncMini" style="display:flex; align-items:center; gap:6px; font-size:var(--fs-2xs);">
                     <span class="status-dot unsynced" id="syncMiniDot" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--warning);"></span>
                     <span id="syncMiniText">غير متزامن</span>
@@ -240,7 +240,7 @@
                 <div class="page-title"><i class="fas fa-cloud-upload-alt"></i> المزامنة السحابية</div>
                 <div class="card">
                     <div class="card-header"><i class="fas fa-link"></i> إعدادات الاتصال</div>
-                    <div class="form-group"><label>رابط Web App</label><input type="text" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/AKfycbyN0XxBcKLr3FYyHOd4AkFYyPuWoInGWOiVaPoAZK40mYy1Z8immpPVrk4_n61ILKrQ/exec"></div>
+                    <div class="form-group"><label>رابط Web App</label><input type="text" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/AKfycbxbTHVSLzASppa75tHboDPHYyv0iBspvGlEdmNGwiUNwVQ5ftFp_eLOfrtIKjnJczqf/exec"></div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn btn-primary" onclick="saveWebAppUrl()"><i class="fas fa-save"></i> حفظ</button>
                         <button class="btn btn-info" onclick="testConnection()"><i class="fas fa-plug"></i> اختبار</button>
@@ -267,9 +267,18 @@
             window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
         }
 
-        const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx3F-3W8AH7-tBvAJ7WhpxBlzbdYfHe1B7YWc10bqFYvoIzHpLWSB_OTeL7otCTjkIc7g/exec';
-        const GAS_CONFIG = { webAppUrl: localStorage.getItem('photo_webapp_url') || DEFAULT_WEBAPP_URL };
-        const STORE_KEY = 'photo_warehouse_tasks_v15';
+        // الرابط الجديد المحدث للسيرفر
+        const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzxuDTQ2LpRl7hrvYbKsMz4wTvIKTgfsfmDvn2wQrHVbxVbw4ty2C3iXrhqAGT9DFb-9Q/exec';
+        
+        // تحديث مفتاح التخزين لإجبار التطبيق على تجاوز البيانات القديمة تماماً
+        const STORE_KEY = 'photo_warehouse_tasks_v16';
+
+        // فرض استخدام الرابط الجديد ومسح القديم
+        if (localStorage.getItem('photo_webapp_url') !== DEFAULT_WEBAPP_URL) {
+            localStorage.setItem('photo_webapp_url', DEFAULT_WEBAPP_URL);
+        }
+
+        const GAS_CONFIG = { webAppUrl: DEFAULT_WEBAPP_URL };
 
         let data = { tasks: [], photographers: [], users: [], roleList: ['مصور فوتوغرافي', 'مصور فيديو', 'مونتير', 'مساعد إضاءة'] };
         let nextIds = { task: 1, photographer: 1, user: 1 };
@@ -328,7 +337,6 @@
             return clientId;
         }
 
-        // ✅ استخدام text/plain لتجنب طلبات CORS Preflight (OPTIONS) في جوجل شيت
         function callGAS_POST(action, payload = {}) {
             const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
             if (!url) return Promise.reject(new Error('رابط السيرفر غير متوفر'));
@@ -370,52 +378,22 @@
                 data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
                 saveNextIds();
             }
-
-            if (data.photographers.length === 0) {
-                data.photographers = [
-                    { id: nextIds.photographer++, name: 'مصور تجريبي 1', role: 'مصور فوتوغرافي', password: '123', notes: '' },
-                    { id: nextIds.photographer++, name: 'مصور تجريبي 2', role: 'مصور فيديو', password: '123', notes: '' }
-                ];
-                saveDataLocalOnly();
-            }
         }
 
         function mergeData(serverData) {
-            if (serverData.photographers && serverData.photographers.length > 0) {
-                const localPhIds = new Set(data.photographers.map(p => p.id));
-                serverData.photographers.forEach(sp => {
-                    if (!localPhIds.has(sp.id)) {
-                        data.photographers.push(sp);
-                    }
-                });
-                data.photographers.forEach(lp => {
-                    const serverPh = serverData.photographers.find(sp => sp.id === lp.id);
-                    if (serverPh) { Object.assign(lp, serverPh); }
-                });
+            // اعتماد البيانات القادمة من الجدول الجديد مباشرة
+            if (serverData.photographers) {
+                data.photographers = serverData.photographers;
+            }
+            if (serverData.users) {
+                data.users = serverData.users;
+            }
+            if (serverData.tasks) {
+                data.tasks = serverData.tasks;
             }
             
-            if (serverData.users && serverData.users.length > 0) {
-                const localUserIds = new Set(data.users.map(u => u.id));
-                serverData.users.forEach(su => {
-                    if (!localUserIds.has(su.id)) {
-                        data.users.push(su);
-                    } else {
-                        const localUser = data.users.find(u => u.id === su.id);
-                        if (localUser) Object.assign(localUser, su);
-                    }
-                });
-            }
-            
-            if (serverData.tasks && serverData.tasks.length > 0) {
-                const localTaskIds = new Set(data.tasks.map(t => t.id));
-                serverData.tasks.forEach(st => {
-                    if (!localTaskIds.has(st.id)) {
-                        data.tasks.push(st);
-                    } else {
-                        const localTask = data.tasks.find(t => t.id === st.id);
-                        if (localTask) Object.assign(localTask, st);
-                    }
-                });
+            if (!data.users.find(u => u.username === 'admin')) {
+                data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
             }
         }
 
@@ -429,14 +407,13 @@
                 
                 showLoading(true);
                 const statusEl = document.getElementById('loadingStatus');
-                if (statusEl) statusEl.textContent = 'جاري تحميل البيانات من السيرفر...';
+                if (statusEl) statusEl.textContent = 'جاري تحميل البيانات من الجدول الجديد...';
                 
                 callGAS_POST('getData')
                     .then(res => {
                         showLoading(false);
                         if (res && res.success && res.data) {
-                            const serverData = res.data;
-                            mergeData(serverData);
+                            mergeData(res.data);
                             
                             data.tasks.forEach(t => { if (t.id >= nextIds.task) nextIds.task = t.id + 1; });
                             data.photographers.forEach(p => { if (p.id >= nextIds.photographer) nextIds.photographer = p.id + 1; });
@@ -727,10 +704,42 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
+        // تحسين دالة تحديث الوقت والتاريخ (للشاشة الرئيسية وواجهة تسجيل الدخول)
         function updateClock() {
             const now = new Date();
-            document.getElementById('clockTime').textContent = now.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('clockDate').textContent = now.toLocaleDateString('ar-EG');
+            const timeStr = now.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+            const dateStr = now.toLocaleDateString('ar-EG');
+            
+            // تحديث الشريط العلوي
+            const clockTime = document.getElementById('clockTime');
+            const clockDate = document.getElementById('clockDate');
+            if (clockTime) clockTime.textContent = timeStr;
+            if (clockDate) clockDate.textContent = dateStr;
+            
+            // تحديث واجهة تسجيل الدخول
+            const loginTime = document.getElementById('loginTime');
+            const loginDate = document.getElementById('loginDate');
+            if (loginTime) loginTime.textContent = timeStr;
+            if (loginDate) loginDate.textContent = dateStr;
+        }
+
+        // تفعيل إظهار وإخفاء قائمة الإعدادات (زر الإعدادات العلوي)
+        function toggleSettingsDropdown() {
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            }
+        }
+
+        // دالة تسجيل الخروج والعودة لشاشة الدخول
+        function goToLogin() {
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) dropdown.style.display = 'none';
+            document.getElementById('loginPassword').value = '';
+            populateLoginSelect();
+            showToast('تم تسجيل الخروج بنجاح');
         }
 
         function saveWebAppUrl() {
@@ -756,17 +765,17 @@
             
             if (GAS_CONFIG.webAppUrl) {
                 document.getElementById('webAppUrlInput').value = GAS_CONFIG.webAppUrl;
-                showLoginLoading(true, 'جاري تحميل أحدث البيانات...');
+                showLoginLoading(true, 'جاري جلب أحدث البيانات من الجدول الجديد...');
                 
                 try {
                     await loadFromSheet();
                     populateLoginSelect();
                     renderTargeted();
                     showLoginLoading(false);
-                    showToast('✅ تم تحديث البيانات بنجاح');
+                    showToast('✅ تم الاتصال وجلب البيانات بنجاح');
                 } catch (error) {
                     showLoginLoading(false);
-                    showToast('⚠️ استخدام البيانات المحلية (غير متزامن)');
+                    showToast('⚠️ فشل جلب البيانات، يتم استخدام المحلية');
                 }
             }
             
