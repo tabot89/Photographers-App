@@ -140,7 +140,7 @@
         <button class="btn-side" data-page="users"><i class="fas fa-users-cog"></i> <span>المستخدمين</span></button>
         <button class="btn-side" data-page="sync"><i class="fas fa-cloud-upload-alt"></i> <span>المزامنة</span></button>
         <button class="btn-side" data-page="settings"><i class="fas fa-cog"></i> <span>الإعدادات</span></button>
-        <div class="sidebar-footer"><i class="fas fa-camera"></i> V6.0</div>
+        <div class="sidebar-footer"><i class="fas fa-camera"></i> V7.0</div>
     </nav>
 
     <div class="main-content">
@@ -238,11 +238,9 @@
             <div id="page-sync" class="page">
                 <div class="page-title"><i class="fas fa-cloud-upload-alt"></i> المزامنة السحابية</div>
                 <div class="card">
-                    <div class="card-header"><i class="fas fa-link"></i> إعدادات الاتصال</div>
-                    <div class="form-group"><label>رابط Web App</label><input type="text" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/AKfycbxbTHVSLzASppa75tHboDPHYyv0iBspvGlEdmNGwiUNwVQ5ftFp_eLOfrtIKjnJczqf/exec"></div>
+                    <div class="card-header"><i class="fas fa-link"></i> إعدادات الاتصال (ثابت حصرياً)</div>
+                    <div class="form-group"><label>رابط Web App</label><input type="text" id="webAppUrlInput" readonly style="background:#eef1f5;cursor:not-allowed;" placeholder="الرابط ثابت حصرياً"></div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button class="btn btn-primary" onclick="saveWebAppUrl()"><i class="fas fa-save"></i> حفظ</button>
-                        <button class="btn btn-info" onclick="testConnection()"><i class="fas fa-plug"></i> اختبار</button>
                         <button class="btn btn-success" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> مزامنة الآن</button>
                         <button class="btn btn-info" onclick="loadFromSheet()"><i class="fas fa-cloud-download-alt"></i> تحميل من الجدول</button>
                         <button class="btn btn-init" onclick="initializeSheets()"><i class="fas fa-database"></i> تهيئة الأوراق</button>
@@ -262,7 +260,7 @@
     <div class="toast" id="toastMsg">تم</div>
 
     <script>
-        // إلغاء الكاش القديم للـ Service Worker وتسجيل الجديد
+        // إلغاء الكاش القديم للـ Service Worker تماماً
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
                 for(let registration of registrations) {
@@ -271,13 +269,15 @@
             });
         }
 
-        // الرابط الجديد الحصري للجدول الجديد
-        const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzxuDTQ2LpRl7hrvYbKsMz4wTvIKTgfsfmDvn2wQrHVbxVbw4ty2C3iXrhqAGT9DFb-9Q/exec';
-        const STORE_KEY = 'photo_warehouse_tasks_v17'; // مفتاح جديد كلياً لتنظيف البيانات القديمة
+        // 🔗 الرابط الجديد والثابت حصرياً للجدول المطلوب
+        const FIXED_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxbTHVSLzASppa75tHboDPHYyv0iBspvGlEdmNGwiUNwVQ5ftFp_eLOfrtIKjnJczqf/exec';
+        
+        // مسح قسري لأي رابط قديم مخزن في المتصفح واعتماد الرابط الجديد نهائياً
+        localStorage.setItem('photo_webapp_url', FIXED_WEBAPP_URL);
+        const GAS_CONFIG = { webAppUrl: FIXED_WEBAPP_URL };
 
-        // فرض مسح الرابط القديم من التخزين المحلي واستبداله بالجديد قسراً
-        localStorage.setItem('photo_webapp_url', DEFAULT_WEBAPP_URL);
-        const GAS_CONFIG = { webAppUrl: DEFAULT_WEBAPP_URL };
+        // مفتاح تخزين جديد كلياً لتنظيف البيانات القديمة المرتبطة بالجدول المحذوف
+        const STORE_KEY = 'photo_warehouse_tasks_v18';
 
         let data = { tasks: [], photographers: [], users: [], roleList: ['مصور فوتوغرافي', 'مصور فيديو', 'مونتير', 'مساعد إضاءة'] };
         let nextIds = { task: 1, photographer: 1, user: 1 };
@@ -337,8 +337,7 @@
         }
 
         function callGAS_POST(action, payload = {}) {
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (!url) return Promise.reject(new Error('رابط السيرفر غير متوفر'));
+            const url = FIXED_WEBAPP_URL; // استخدام الرابط الثابت حصرياً لمنع أي استبدال
             
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 20000);
@@ -380,7 +379,7 @@
         }
 
         function mergeData(serverData) {
-            // اعتماد بيانات الجدول الجديد بالكامل وتحديث المراسلات
+            // اعتماد بيانات الجدول الجديد الحصري فقط
             if (serverData.photographers) {
                 data.photographers = serverData.photographers;
             }
@@ -406,7 +405,7 @@
                 
                 showLoading(true);
                 const statusEl = document.getElementById('loadingStatus');
-                if (statusEl) statusEl.textContent = 'جاري تحميل البيانات من الجدول الجديد...';
+                if (statusEl) statusEl.textContent = 'جاري تحميل البيانات من الجدول الجديد الحصري...';
                 
                 callGAS_POST('getData')
                     .then(res => {
@@ -421,7 +420,7 @@
                             saveDataLocalOnly();
                             cacheTimestamp = res.data.updatedAt || new Date().toISOString();
                             
-                            if (statusEl) statusEl.textContent = '✅ تم التحديث من الجدول الجديد بنجاح';
+                            if (statusEl) statusEl.textContent = '✅ تم التحديث من الجدول الحصري بنجاح';
                             resolve(true);
                         } else {
                             reject(new Error('لا توجد بيانات من السيرفر'));
@@ -459,7 +458,7 @@
                         document.getElementById('syncMiniText').textContent = 'متزامن';
                         cacheTimestamp = res.updatedAt || new Date().toISOString();
                         localStorage.setItem('photo_last_sync', Date.now().toString());
-                        showToast('✅ تمت المزامنة مع الجدول الجديد بنجاح');
+                        showToast('✅ تمت المزامنة مع الجدول الجديد حصرياً');
                     } else {
                         throw new Error(res.error || 'خطأ غير معروف');
                     }
@@ -484,7 +483,7 @@
         function testConnection() {
             showLoading(true);
             const statusEl = document.getElementById('loadingStatus');
-            if (statusEl) statusEl.textContent = 'جاري اختبار الاتصال بالجدول الجديد...';
+            if (statusEl) statusEl.textContent = 'جاري اختبار الاتصال بالجدول الحصري...';
             callGAS_POST('test')
                 .then(res => {
                     showLoading(false);
@@ -499,7 +498,7 @@
         function initializeSheets() {
             showLoading(true);
             const statusEl = document.getElementById('loadingStatus');
-            if (statusEl) statusEl.textContent = 'جاري تهيئة الأوراق في الجدول الجديد...';
+            if (statusEl) statusEl.textContent = 'جاري تهيئة الأوراق...';
             callGAS_POST('initializeSheets')
                 .then(res => {
                     showLoading(false);
@@ -731,24 +730,20 @@
             document.getElementById('loginScreen').classList.remove('hidden');
             const dropdown = document.getElementById('settingsDropdown');
             if (dropdown) dropdown.style.display = 'none';
+            document.getElementById('loginPassword').value, '';
             document.getElementById('loginPassword').value = '';
             populateLoginSelect();
             showToast('تم تسجيل الخروج بنجاح');
-        }
-
-        function saveWebAppUrl() {
-            const url = document.getElementById('webAppUrlInput').value.trim();
-            if (url) {
-                GAS_CONFIG.webAppUrl = url;
-                localStorage.setItem('photo_webapp_url', url);
-                showToast('✅ تم حفظ رابط Web App الجديد');
-            }
         }
 
         async function initializeApp() {
             loadData();
             populateLoginSelect();
             
+            // تعيين الرابط الحصري في خانة الإعدادات ليظهر للمستخدم
+            const urlInput = document.getElementById('webAppUrlInput');
+            if (urlInput) urlInput.value = FIXED_WEBAPP_URL;
+
             if (!navigator.onLine) {
                 showToast('⚠️ لا يوجد اتصال بالإنترنت، عرض البيانات المحلية');
                 updateClock();
@@ -757,20 +752,17 @@
                 return;
             }
             
-            if (GAS_CONFIG.webAppUrl) {
-                document.getElementById('webAppUrlInput').value = GAS_CONFIG.webAppUrl;
-                showLoginLoading(true, 'جاري المزامنة مع الجدول الجديد...');
-                
-                try {
-                    await loadFromSheet();
-                    populateLoginSelect();
-                    renderTargeted();
-                    showLoginLoading(false);
-                    showToast('✅ تم جلب البيانات من الجدول الجديد بنجاح');
-                } catch (error) {
-                    showLoginLoading(false);
-                    showToast('⚠️ فشل جلب البيانات من الجدول الجديد');
-                }
+            showLoginLoading(true, 'جاري المزامنة مع الجدول الجديد حصرياً...');
+            
+            try {
+                await loadFromSheet();
+                populateLoginSelect();
+                renderTargeted();
+                showLoginLoading(false);
+                showToast('✅ تم جلب البيانات من الجدول الجديد بنجاح');
+            } catch (error) {
+                showLoginLoading(false);
+                showToast('⚠️ فشل جلب البيانات من الجدول الجديد');
             }
             
             updateClock();
@@ -780,7 +772,7 @@
 
         function startAutoSync() {
             setInterval(() => {
-                if (navigator.onLine && GAS_CONFIG.webAppUrl) {
+                if (navigator.onLine) {
                     loadFromSheet()
                         .then(() => {
                             populateLoginSelect();
