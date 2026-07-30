@@ -5,1391 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>واجبات المصورين - الإعلام المركزي</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js">
-    </script>
-    <!-- إعدادات PWA لتثبيت التطبيق على الهواتف -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0d1b2a">
     <style>
-        /* ============================================================
-           RESET & FLUID DESIGN SYSTEM
-           ============================================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
-            --primary: #0d1b2a;
-            --primary-light: #1b2d45;
-            --accent: #f4a261;
-            --accent-dark: #e76f51;
-            --success: #2a9d8f;
-            --danger: #e63946;
-            --warning: #f4a261;
-            --info: #457b9d;
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --border: #dce1e8;
-            --text: #2c3e50;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            --radius: 10px;
-            --fs-3xs: 0.7rem;
-            --fs-2xs: 0.72rem;
-            --fs-xs: 0.8rem;
-            --fs-sm: 0.9rem;
-            --fs-base: 1rem;
-            --fs-md: 1.15rem;
-            --fs-lg: 1.3rem;
-            --fs-xl: 1.5rem;
-            --fs-2xl: 1.8rem;
-            --sp-3xs: 3px;
-            --sp-2xs: 5px;
-            --sp-xs: 8px;
-            --sp-sm: 12px;
-            --sp-md: 18px;
-            --sp-lg: 26px;
-            --sp-xl: 34px;
+            --primary: #0d1b2a; --primary-light: #1b2d45; --accent: #f4a261; --accent-dark: #e76f51;
+            --success: #2a9d8f; --danger: #e63946; --warning: #f4a261; --info: #457b9d;
+            --bg: #f0f2f5; --card: #ffffff; --border: #dce1e8; --text: #2c3e50;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.06); --radius: 10px;
+            --fs-2xs: 0.72rem; --fs-xs: 0.8rem; --fs-sm: 0.9rem; --fs-base: 1rem; --fs-md: 1.15rem; --fs-lg: 1.3rem; --fs-xl: 1.5rem; --fs-2xl: 1.8rem;
         }
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; font-size: 16px; height: 100%; }
+        body { font-family: -apple-system, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100%; min-height: 100vh; overflow: hidden; font-size: var(--fs-base); line-height: 1.5; position: fixed; inset: 0; width: 100%; }
+        
+        #loginScreen { position: fixed; inset: 0; background: rgba(13, 27, 42, 0.95); display: flex; justify-content: center; align-items: center; z-index: 999999; padding: 20px; overflow-y: auto; }
+        #loginScreen.hidden { display: none; }
+        .login-box { background: #fff; border-radius: var(--radius); padding: 28px 24px; width: min(400px, 92%); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); text-align: center; margin: auto; }
+        .login-box h2 { color: var(--primary); font-size: var(--fs-2xl); margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .login-box h2 i { color: var(--accent); }
+        .login-box .sub { color: #7a8a9e; font-size: var(--fs-md); margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; text-align: right; }
+        .form-group label { display: block; font-size: var(--fs-xs); font-weight: 600; color: var(--primary); margin-bottom: 5px; }
+        .form-group select, .form-group input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 16px; background: #fafbfc; min-height: 44px; font-family: inherit; }
+        .form-group select:focus, .form-group input:focus { border-color: var(--accent); outline: none; background: #fff; }
+        .btn-group { display: flex; gap: 12px; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: var(--radius); padding: 10px 18px; font-size: var(--fs-xs); font-weight: 600; cursor: pointer; transition: .2s; color: #fff; min-height: 42px; font-family: inherit; }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-info { background: var(--info); }
+        .btn-warning { background: var(--warning); color: #1a1a2e; }
+        .btn-init { background: #9c27b0; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+        
+        .sidebar { width: 220px; background: var(--primary); color: #fff; display: flex; flex-direction: column; padding: 10px 0; overflow-y: auto; flex-shrink: 0; z-index: 100; height: 100%; }
+        .sidebar-header { text-align: center; padding: 12px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 6px; }
+        .sidebar-header h2 { font-size: var(--fs-lg); }
+        .sidebar-header h2 i { color: var(--accent); }
+        .sidebar .btn-side { width: 100%; border: none; background: none; color: #a0b3c7; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-align: right; transition: .2s; border-right: 3px solid transparent; font-size: var(--fs-base); font-family: inherit; }
+        .sidebar .btn-side:hover, .sidebar .btn-side.active { background: var(--primary-light); color: #fff; border-right-color: var(--accent); }
+        .sidebar .btn-side i { width: 22px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding: 12px 18px; border-top: 1px solid rgba(255,255,255,.06); font-size: var(--fs-xs); color: #6a7f94; text-align: center; }
 
-        html {
-            scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
-            font-size: 16px;
-            height: 100%;
-        }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); height: 100%; width: 100%; position: relative; }
+        .top-bar { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; background: var(--primary); color: #fff; padding: 10px 18px; min-height: 54px; z-index: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .top-bar .user-name { background: var(--accent); color: #1a1a2e; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: var(--fs-xs); }
+        .top-bar .center-section { display: flex; flex-direction: column; align-items: center; font-weight: 600; direction: ltr; line-height: 1.2; }
+        .top-bar .center-section .time { font-size: var(--fs-base); }
+        .top-bar .center-section .date { font-size: var(--fs-2xs); color: #c0d0e0; }
+        
+        .pages-container { flex: 1; overflow-y: auto; padding: 18px; width: 100%; }
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .card { background: #fff; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
+        .card-header { display: flex; align-items: center; gap: 8px; border-right: 3px solid var(--accent); padding-right: 10px; margin-bottom: 12px; color: var(--primary); font-size: var(--fs-md); font-weight: 700; }
+        .card-header i { color: var(--accent); }
+        .page-title { font-size: var(--fs-lg); font-weight: 700; color: var(--primary); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .page-title i { color: var(--accent); }
 
-        body {
-            font-family: -apple-system, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            display: flex;
-            height: 100%;
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            overflow: hidden;
-            font-size: var(--fs-base);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+        .stat-card { background: #f8fafc; border-radius: var(--radius); padding: 14px; text-align: center; border-right: 3px solid var(--accent); }
+        .stat-card .number { font-size: var(--fs-2xl); font-weight: 700; color: var(--primary); }
+        .stat-card .label { font-size: var(--fs-xs); color: #6a7f94; margin-top: 4px; }
+        
+        .table-wrap { width: 100%; overflow-x: auto; margin: 8px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+        .table-wrap table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: var(--fs-sm); text-align: right; }
+        .table-wrap table th { background: var(--primary); color: #fff; padding: 10px 14px; font-weight: 600; font-size: var(--fs-xs); }
+        .table-wrap table td { padding: 10px 14px; border-bottom: 1px solid #eef1f5; font-size: var(--fs-xs); }
+        .btn-icon { background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: var(--radius); font-size: var(--fs-base); }
+        .btn-icon.edit { color: var(--info); }
+        .btn-icon.delete { color: var(--danger); }
 
-        /* ============================================================
-           LOGIN SCREEN
-           ============================================================ */
-        #loginScreen {
-            position: fixed;
-            inset: 0;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(13, 27, 42, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 999999;
-            padding: 20px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        #loginScreen.hidden {
-            display: none;
-        }
+        .photographer-checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; padding: 12px; background: #f8fafc; border-radius: var(--radius); border: 1px solid var(--border); max-height: 200px; overflow-y: auto; }
+        .photographer-checkbox-grid label { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); cursor: pointer; }
+        
+        .toast { position: fixed; left: 18px; bottom: 18px; background: var(--primary); color: #fff; padding: 10px 18px; border-radius: var(--radius); box-shadow: 0 6px 20px rgba(0,0,0,.25); opacity: 0; transform: translateY(16px); transition: .3s; z-index: 99999; font-size: var(--fs-xs); pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 18px; }
+        .modal-overlay.show { display: flex; }
+        .modal-box { width: min(520px, 94%); background: #fff; border-radius: var(--radius); padding: 20px; box-shadow: 0 16px 40px rgba(0,0,0,.25); max-height: 90vh; overflow-y: auto; }
 
-        .login-box {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 28px 24px;
-            width: min(400px, 92%);
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            text-align: center;
-            margin: auto;
-        }
-        .login-box h2 {
-            color: var(--primary);
-            font-size: var(--fs-2xl);
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .login-box h2 i {
-            color: var(--accent);
-        }
-        .login-box .sub {
-            color: #7a8a9e;
-            font-size: var(--fs-md);
-            margin-bottom: 20px;
-        }
-        .login-box .form-group {
-            margin-bottom: 16px;
-            text-align: right;
-        }
-        .login-box .form-group label {
-            display: block;
-            font-size: var(--fs-xs);
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-        .login-box .form-group select,
-        .login-box .form-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 16px;
-            background: #fafbfc;
-            min-height: 44px;
-            -webkit-appearance: none;
-            appearance: none;
-            font-family: inherit;
-        }
-        .login-box .form-group select:focus,
-        .login-box .form-group input:focus {
-            border-color: var(--accent);
-            outline: none;
-            background: #fff;
-        }
-        .login-box .btn-group {
-            display: flex;
-            gap: 12px;
-        }
-        .login-box .btn-group .btn {
-            flex: 1;
-            padding: 12px 16px;
-            font-size: var(--fs-base);
-            font-weight: 700;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: .2s;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            touch-action: manipulation;
-        }
-        .login-box .btn-group .btn-primary {
-            background: var(--primary);
-            color: #fff;
-        }
-        .login-box .btn-group .btn-primary:hover {
-            background: var(--primary-light);
-        }
-        .login-box .btn-group .btn-danger {
-            background: var(--danger);
-            color: #fff;
-        }
-        .login-box .btn-group .btn-danger:hover {
-            background: #c0392b;
-        }
-        .login-box .login-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 18px;
-            font-size: var(--fs-xs);
-            color: #6a7f94;
-            direction: ltr;
-        }
-        .login-box .login-footer .right {
-            direction: rtl;
-        }
-        .login-box .remember-me {
-            margin-top: 14px;
-            text-align: right;
-            font-size: var(--fs-xs);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            justify-content: flex-start;
-        }
-        .login-box .remember-me input {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--accent);
-            cursor: pointer;
-            flex-shrink: 0;
-            -webkit-appearance: none;
-            appearance: none;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            background: #fff;
-            transition: .2s;
-            position: relative;
-        }
-        .login-box .remember-me input:checked {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-        .login-box .remember-me input:checked::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        /* ============================================================
-           SIDEBAR
-           ============================================================ */
-        .sidebar {
-            width: 220px;
-            min-width: 200px;
-            background: var(--primary);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            padding: 10px 0;
-            overflow-y: auto;
-            flex-shrink: 0;
-            box-shadow: 2px 0 12px rgba(0, 0, 0, .15);
-            z-index: 100;
-            -webkit-overflow-scrolling: touch;
-            height: 100%;
-        }
-
-        .sidebar-header {
-            text-align: center;
-            padding: 12px 20px 18px;
-            border-bottom: 1px solid rgba(255, 255, 255, .08);
-            margin-bottom: 6px;
-            flex-shrink: 0;
-        }
-        .sidebar-header h2 {
-            font-size: var(--fs-lg);
-            font-weight: 700;
-        }
-        .sidebar-header h2 i {
-            color: var(--accent);
-            margin-left: 6px;
-        }
-        .sidebar-header .subtitle {
-            font-size: var(--fs-xs);
-            color: #8a9aa8;
-            margin-top: 4px;
-        }
-
-        .sidebar .btn-side {
-            width: 100%;
-            border: none;
-            background: none;
-            color: #a0b3c7;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 18px;
-            text-align: right;
-            transition: .2s;
-            border-right: 3px solid transparent;
-            font-size: var(--fs-base);
-            position: relative;
-            touch-action: manipulation;
-            font-family: inherit;
-            flex-shrink: 0;
-        }
-        .sidebar .btn-side:hover {
-            background: var(--primary-light);
-            color: #fff;
-        }
-        .sidebar .btn-side.active {
-            background: var(--primary-light);
-            color: #fff;
-            border-right-color: var(--accent);
-        }
-        .sidebar .btn-side i {
-            width: 22px;
-            text-align: center;
-            font-size: var(--fs-md);
-            flex-shrink: 0;
-        }
-        .sidebar .btn-side .badge-side {
-            background: var(--accent-dark);
-            color: #fff;
-            border-radius: 12px;
-            padding: 2px 8px;
-            font-size: var(--fs-2xs);
-            margin-right: auto;
-            font-weight: 600;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding: 12px 18px;
-            border-top: 1px solid rgba(255, 255, 255, .06);
-            font-size: var(--fs-xs);
-            color: #6a7f94;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        /* ============================================================
-           MAIN CONTENT & DOCKED TOP BAR
-           ============================================================ */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            background: var(--bg);
-            height: 100%;
-            width: 100%;
-            position: relative;
-        }
-
-        .top-bar {
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--primary);
-            color: #fff;
-            padding: 10px 18px;
-            min-height: 54px;
-            z-index: 500;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 100%;
-        }
-        .top-bar .left-section {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .top-bar .left-section .user-name {
-            background: var(--accent);
-            color: #1a1a2e;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: var(--fs-xs);
-        }
-        .top-bar .left-section i {
-            font-size: var(--fs-md);
-        }
-        .top-bar .center-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-weight: 600;
-            direction: ltr;
-            line-height: 1.2;
-        }
-        .top-bar .center-section .time {
-            font-size: var(--fs-base);
-        }
-        .top-bar .center-section .date {
-            font-size: var(--fs-2xs);
-            color: #c0d0e0;
-        }
-        .top-bar .right-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-        }
-        .top-bar .sync-mini {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: var(--fs-2xs);
-            color: #c0d0e0;
-        }
-        .top-bar .sync-mini .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .top-bar .sync-mini .status-dot.synced {
-            background: var(--success);
-        }
-        .top-bar .sync-mini .status-dot.unsynced {
-            background: var(--warning);
-        }
-        .top-bar .sync-mini .status-dot.error {
-            background: var(--danger);
-        }
-        .top-bar .sync-mini .status-dot.syncing {
-            background: var(--info);
-            animation: pulse 1s infinite;
-        }
-        .top-bar .sync-mini .btn {
-            padding: 2px 8px;
-            font-size: 0.6rem;
-            min-height: 24px;
-        }
-
-        .top-bar .settings-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            font-size: var(--fs-lg);
-            padding: 4px 10px;
-            border-radius: var(--radius);
-            transition: .2s;
-            position: relative;
-            touch-action: manipulation;
-        }
-        .top-bar .settings-btn:hover {
-            background: rgba(255, 255, 255, .15);
-        }
-        .settings-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: #fff;
-            color: var(--text);
-            border-radius: var(--radius);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
-            min-width: 150px;
-            padding: 6px 0;
-            z-index: 1000;
-        }
-        .settings-dropdown.show {
-            display: block;
-        }
-        .settings-dropdown button {
-            display: block;
-            width: 100%;
-            padding: 10px 14px;
-            border: none;
-            background: none;
-            text-align: right;
-            font-size: var(--fs-xs);
-            cursor: pointer;
-            transition: .2s;
-            color: var(--text);
-            font-family: inherit;
-            touch-action: manipulation;
-        }
-        .settings-dropdown button:hover {
-            background: #f0f2f5;
-        }
-        .settings-dropdown button i {
-            margin-left: 8px;
-            width: 18px;
-        }
-        .settings-dropdown .divider {
-            border-top: 1px solid #eef1f5;
-            margin: 4px 0;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .pages-container {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 18px;
-            -webkit-overflow-scrolling: touch;
-            width: 100%;
-        }
-
-        /* ============================================================
-           PAGES & CARDS
-           ============================================================ */
-        .page {
-            display: none;
-            animation: fade .25s ease-in-out;
-        }
-        .page.active {
-            display: block;
-        }
-        @keyframes fade {
-            from { opacity: .3; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 18px;
-            box-shadow: var(--shadow);
-            margin-bottom: 18px;
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            border-right: 3px solid var(--accent);
-            padding-right: 10px;
-            margin-bottom: 12px;
-            color: var(--primary);
-            font-size: var(--fs-md);
-            font-weight: 700;
-        }
-        .card-header i {
-            font-size: var(--fs-md);
-            color: var(--accent);
-        }
-
-        .page-title {
-            font-size: var(--fs-lg);
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-        .page-title i {
-            color: var(--accent);
-            font-size: var(--fs-lg);
-        }
-
-        /* ============================================================
-           STATS GRID
-           ============================================================ */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-        .stat-card {
-            background: #f8fafc;
-            border-radius: var(--radius);
-            padding: 14px;
-            text-align: center;
-            border-right: 3px solid var(--accent);
-            transition: .2s;
-        }
-        .stat-card:hover {
-            background: #f0f4f8;
-        }
-        .stat-card .number {
-            font-size: var(--fs-2xl);
-            font-weight: 700;
-            color: var(--primary);
-            line-height: 1.1;
-        }
-        .stat-card .label {
-            font-size: var(--fs-xs);
-            color: #6a7f94;
-            margin-top: 4px;
-        }
-        .stat-card .icon-stat {
-            font-size: var(--fs-md);
-            color: var(--accent);
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        /* ============================================================
-           TABLES
-           ============================================================ */
-        .table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            overflow-y: visible;
-            -webkit-overflow-scrolling: touch;
-            margin: 8px 0;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-        }
-        .table-wrap table {
-            width: 100%;
-            min-width: 480px;
-            border-collapse: collapse;
-            font-size: var(--fs-sm);
-            text-align: right;
-        }
-        .table-wrap table th {
-            background: var(--primary);
-            color: #fff;
-            padding: 10px 14px;
-            font-weight: 600;
-            white-space: nowrap;
-            font-size: var(--fs-xs);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .table-wrap table td {
-            padding: 10px 14px;
-            border-bottom: 1px solid #eef1f5;
-            font-size: var(--fs-xs);
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            vertical-align: middle;
-        }
-        .table-wrap table tr:hover td {
-            background: #f8fafc;
-        }
-        .table-wrap table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .btn-icon {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: var(--radius);
-            transition: .2s;
-            font-size: var(--fs-base);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-        }
-        .btn-icon:hover {
-            background: #eef1f5;
-        }
-        .btn-icon.edit {
-            color: var(--info);
-        }
-        .btn-icon.delete {
-            color: var(--danger);
-        }
-
-        /* ============================================================
-           FORMS & INPUTS
-           ============================================================ */
-        .form-group {
-            margin-bottom: 12px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            font-size: var(--fs-xs);
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 16px;
-            background: #fafbfc;
-            transition: .2s;
-            font-family: inherit;
-            min-height: 42px;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--accent);
-            outline: none;
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(244, 162, 97, 0.15);
-        }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 70px;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-        }
-
-        .photographer-checkbox-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 8px;
-            padding: 12px;
-            background: #f8fafc;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            max-height: 200px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .photographer-checkbox-grid label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: var(--fs-xs);
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: var(--radius);
-            transition: .2s;
-            user-select: none;
-        }
-        .photographer-checkbox-grid label:hover {
-            background: #eef1f5;
-        }
-        .photographer-checkbox-grid input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: var(--accent);
-            flex-shrink: 0;
-            min-height: auto;
-            -webkit-appearance: none;
-            appearance: none;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            background: #fff;
-            transition: .2s;
-            position: relative;
-        }
-        .photographer-checkbox-grid input[type="checkbox"]:checked {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
-        .photographer-checkbox-grid input[type="checkbox"]:checked::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #fff;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        /* ============================================================
-           BUTTONS
-           ============================================================ */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: none;
-            border-radius: var(--radius);
-            padding: 10px 18px;
-            font-size: var(--fs-xs);
-            font-weight: 600;
-            cursor: pointer;
-            transition: .2s;
-            color: #fff;
-            min-height: 42px;
-            touch-action: manipulation;
-            white-space: nowrap;
-            font-family: inherit;
-        }
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
-        }
-        .btn-primary {
-            background: var(--primary);
-        }
-        .btn-success {
-            background: var(--success);
-        }
-        .btn-danger {
-            background: var(--danger);
-        }
-        .btn-warning {
-            background: var(--warning);
-            color: #1a1a2e;
-        }
-        .btn-info {
-            background: var(--info);
-        }
-        .btn-accent {
-            background: var(--accent);
-            color: #1a1a2e;
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--primary);
-            color: var(--primary);
-        }
-        .btn-outline:hover {
-            background: var(--primary);
-            color: #fff;
-        }
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: var(--fs-2xs);
-            min-height: 34px;
-        }
-        .btn-block {
-            width: 100%;
-        }
-        .btn-black {
-            background: #1a1a1a;
-            color: #fff;
-        }
-        .btn-black:hover {
-            background: #333;
-        }
-        .btn-google {
-            background: #4285F4;
-            color: #fff;
-        }
-        .btn-google:hover {
-            background: #3367D6;
-        }
-        .btn-init {
-            background: #9c27b0;
-            color: #fff;
-        }
-        .btn-init:hover {
-            background: #7b1fa2;
-        }
-
-        .action-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin: 10px 0;
-        }
-
-        /* ============================================================
-           FILTER BAR
-           ============================================================ */
-        .filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 8px 14px;
-            background: #f8fafc;
-            border-radius: var(--radius);
-        }
-        .filter-bar input,
-        .filter-bar select {
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: var(--fs-xs);
-            background: #fff;
-            flex: 1 1 120px;
-            min-width: 80px;
-            min-height: 38px;
-            -webkit-appearance: none;
-            appearance: none;
-            font-family: inherit;
-        }
-
-        /* ============================================================
-           TOAST & MODAL
-           ============================================================ */
-        .toast {
-            position: fixed;
-            left: 18px;
-            bottom: 18px;
-            background: var(--primary);
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: var(--radius);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
-            opacity: 0;
-            transform: translateY(16px);
-            transition: .3s;
-            z-index: 99999;
-            font-size: var(--fs-xs);
-            pointer-events: none;
-            max-width: 380px;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, .5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 18px;
-        }
-        .modal-overlay.show {
-            display: flex;
-        }
-        .modal-box {
-            width: min(520px, 94%);
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, .25);
-            max-height: 90vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .modal-box .modal-title {
-            font-size: var(--fs-md);
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .modal-box .modal-title i {
-            color: var(--accent);
-        }
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 18px;
-        }
-
-        /* ============================================================
-           STATS & RANKINGS
-           ============================================================ */
-        .photographer-stats-grid,
-        .photographer-stats-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 8px;
-            padding: 8px 12px;
-            font-size: var(--fs-xs);
-            align-items: center;
-        }
-        .photographer-stats-grid {
-            font-weight: 700;
-            background: #eef1f5;
-            border-radius: var(--radius);
-            margin-bottom: 4px;
-        }
-        .photographer-stats-row {
-            border-bottom: 1px solid #eef1f5;
-            transition: .2s;
-        }
-        .photographer-stats-row .name {
-            font-weight: 600;
-            color: var(--primary);
-        }
-        .photographer-stats-row.highlight-max {
-            background: #fde8e8;
-            border-right: 3px solid var(--danger);
-        }
-        .photographer-stats-row.highlight-max .name {
-            color: var(--danger);
-        }
-        .photographer-stats-row.highlight-min {
-            background: #fff8e8;
-            border-right: 3px solid var(--warning);
-        }
-        .photographer-stats-row.highlight-min .name {
-            color: #b8860b;
-        }
-
-        .top-photographers-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        .top-photographer-item {
-            background: #f8fafc;
-            border-radius: var(--radius);
-            padding: 12px;
-            text-align: center;
-            border-right: 3px solid var(--accent);
-        }
-        .top-photographer-item .rank {
-            font-size: var(--fs-xs);
-            color: #6a7f94;
-        }
-        .top-photographer-item .name {
-            font-weight: 700;
-            font-size: var(--fs-sm);
-            color: var(--primary);
-        }
-        .top-photographer-item .count {
-            font-size: var(--fs-2xs);
-            color: var(--accent-dark);
-            font-weight: 600;
-        }
-
-        .required {
-            color: var(--danger);
-            font-size: var(--fs-2xs);
-        }
-
-        /* ============================================================
-           SYNC PAGE STYLES
-           ============================================================ */
-        .gdrive-auth-card {
-            background: #f8f9fa;
-            border: 2px dashed #4285F4;
-            border-radius: var(--radius);
-            padding: 20px;
-            text-align: center;
-        }
-        .gdrive-auth-card .gdrive-icon {
-            font-size: 48px;
-            color: #4285F4;
-            margin-bottom: 10px;
-            display: block;
-        }
-        .gdrive-auth-card .sub-text {
-            color: #6a7f94;
-            font-size: var(--fs-xs);
-            margin-bottom: 12px;
-        }
-
-        .connection-status {
-            padding: 12px;
-            border-radius: var(--radius);
-            margin-top: 10px;
-            font-size: var(--fs-xs);
-        }
-        .connection-status.success {
-            background: #e8f5e9;
-            border: 1px solid #a5d6a7;
-            color: #2e7d32;
-        }
-        .connection-status.error {
-            background: #ffebee;
-            border: 1px solid #ef9a9a;
-            color: #c62828;
-        }
-        .connection-status.info {
-            background: #e3f2fd;
-            border: 1px solid #90caf9;
-            color: #0d47a1;
-        }
-
-        .sync-log-container {
-            max-height: 200px;
-            overflow-y: auto;
-            background: #f8fafc;
-            border-radius: var(--radius);
-            padding: 12px;
-            font-size: var(--fs-xs);
-            direction: ltr;
-            text-align: left;
-            font-family: monospace;
-        }
-        .sync-log-container .log-entry {
-            padding: 4px 0;
-            border-bottom: 1px solid #eef1f5;
-        }
-        .sync-log-container .log-entry.success {
-            color: var(--success);
-        }
-        .sync-log-container .log-entry.error {
-            color: var(--danger);
-        }
-        .sync-log-container .log-entry.info {
-            color: var(--info);
-        }
-        .sync-log-container .log-entry.warning {
-            color: var(--warning);
-        }
-
-        .sync-config-card {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-        }
-        .sync-config-card .config-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        .sync-config-card .config-row label {
-            font-weight: 600;
-            font-size: var(--fs-xs);
-            color: var(--primary);
-            min-width: 120px;
-        }
-        .sync-config-card .config-row input {
-            flex: 1;
-            min-width: 200px;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: var(--fs-xs);
-            direction: ltr;
-            text-align: left;
-            background: #fff;
-        }
-        .sync-config-card .config-row .btn {
-            flex-shrink: 0;
-        }
-
-        /* Settings - Photographers List */
-        .settings-photographers-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-        }
-        .settings-photographer-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            border-bottom: 1px solid #eef1f5;
-        }
-        .settings-photographer-item:last-child {
-            border-bottom: none;
-        }
-        .settings-photographer-item .info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .settings-photographer-item .info .name {
-            font-weight: 600;
-        }
-        .settings-photographer-item .info .role {
-            font-size: var(--fs-2xs);
-            color: #6a7f94;
-            background: #eef1f5;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-        .settings-photographer-item .actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        /* ============================================================
-           MOBILE & IOS RESPONSIVE
-           ============================================================ */
         @media (max-width: 820px) {
-            body {
-                flex-direction: column;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                height: 100%;
-            }
-
-            .sidebar {
-                position: fixed;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                top: auto;
-                width: 100%;
-                height: 56px;
-                padding: 0;
-                flex-direction: row;
-                justify-content: space-around;
-                align-items: center;
-                box-shadow: 0 -2px 10px rgba(0, 0, 0, .15);
-                border-radius: 0;
-                z-index: 200;
-                min-width: unset;
-                overflow-y: visible;
-            }
-            .sidebar-header,
-            .sidebar-footer {
-                display: none;
-            }
-            .sidebar .btn-side {
-                flex: 1;
-                height: 100%;
-                border: none;
-                border-top: 3px solid transparent;
-                border-right: none;
-                padding: 2px 4px;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                gap: 2px;
-                border-radius: 0;
-                font-size: var(--fs-2xs);
-            }
-            .sidebar .btn-side.active {
-                border-top-color: var(--accent);
-                background: rgba(255, 255, 255, .08);
-            }
-            .sidebar .btn-side i {
-                font-size: 1.1rem;
-                width: auto;
-            }
-            .sidebar .btn-side span {
-                font-size: 0.6rem;
-                text-align: center;
-            }
-            .sidebar .btn-side .badge-side {
-                display: none;
-            }
-
-            .main-content {
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 56px;
-            }
-
-            .pages-container {
-                padding: 10px;
-                padding-bottom: 64px;
-            }
-
-            .top-bar {
-                padding: 8px 12px;
-                flex-wrap: nowrap;
-                min-height: 48px;
-            }
-            .top-bar .center-section .time {
-                font-size: var(--fs-sm);
-            }
-            .top-bar .center-section .date {
-                font-size: 0.6rem;
-            }
-            .top-bar .sync-mini .sync-text {
-                display: none;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .login-box {
-                padding: 20px 16px;
-                width: 95%;
-            }
-            .login-box h2 {
-                font-size: var(--fs-xl);
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            .photographer-stats-grid,
-            .photographer-stats-row {
-                grid-template-columns: 2fr 1fr;
-                font-size: 0.7rem;
-                gap: 4px;
-                padding: 6px 8px;
-            }
-
-            .sync-config-card .config-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .sync-config-card .config-row input {
-                min-width: unset;
-            }
-            
-            .settings-photographer-item {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-            .stat-card {
-                padding: 10px;
-            }
-            .stat-card .number {
-                font-size: var(--fs-xl);
-            }
-
-            .top-bar .left-section .user-name {
-                font-size: 0.65rem;
-                padding: 2px 8px;
-            }
-            .top-bar .sync-mini .btn {
-                font-size: 0.5rem;
-                padding: 2px 6px;
-            }
-
-            .card {
-                padding: 12px;
-            }
-            .card-header {
-                font-size: var(--fs-sm);
-            }
-            .page-title {
-                font-size: var(--fs-md);
-            }
-
-            .login-box .btn-group .btn {
-                font-size: var(--fs-sm);
-                padding: 10px 12px;
-                min-height: 42px;
-            }
-        }
-
-        /* iOS specific fixes */
-        @supports (-webkit-touch-callout: none) {
-            .pages-container {
-                height: 100%;
-                -webkit-overflow-scrolling: touch;
-            }
-            body {
-                height: 100%;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-            }
-            .login-box input,
-            .login-box select,
-            .form-group input,
-            .form-group select {
-                font-size: 16px;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #eef1f5;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #c0c8d4;
-            border-radius: 4px;
+            body { flex-direction: column; position: fixed; inset: 0; }
+            .sidebar { position: fixed; bottom: 0; right: 0; left: 0; top: auto; width: 100%; height: 56px; flex-direction: row; justify-content: space-around; z-index: 200; }
+            .sidebar-header, .sidebar-footer { display: none; }
+            .sidebar .btn-side { flex: 1; height: 100%; flex-direction: column; justify-content: center; font-size: 0.6rem; padding: 0; gap: 2px; }
+            .sidebar .btn-side i { font-size: 1rem; }
+            .main-content { position: absolute; inset: 0 0 56px 0; }
+            .pages-container { padding: 10px; padding-bottom: 64px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== LOGIN SCREEN ===== -->
     <div id="loginScreen">
         <div class="login-box">
             <h2><i class="fas fa-camera-retro"></i> إدارة الواجبات</h2>
@@ -1397,36 +110,32 @@
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> اختيار المستخدم</label>
-                    <select id="loginUserSelect" required>
-                        <option value="">-- اختر --</option>
-                    </select>
+                    <select id="loginUserSelect" required><option value="">-- اختر --</option></select>
                 </div>
-                <div class="form-group" id="loginPasswordGroup">
+                <div class="form-group">
                     <label><i class="fas fa-lock"></i> كلمة المرور</label>
                     <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" autocomplete="off">
                 </div>
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> دخول</button>
-                    <button type="button" class="btn btn-danger" onclick="closeBrowser()"><i class="fas fa-times"></i> خروج</button>
+                    <button type="submit" class="btn btn-primary" style="flex:1;"><i class="fas fa-sign-in-alt"></i> دخول</button>
+                    <button type="button" class="btn btn-danger" style="flex:1;" onclick="closeBrowser()"><i class="fas fa-times"></i> خروج</button>
                 </div>
-                <label class="remember-me">
-                    <input type="checkbox" id="rememberMe" checked> تذكر كلمة المرور
+                <label class="form-group" style="margin-top:14px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" id="rememberMe" checked style="width:18px;height:18px;accent-color:var(--accent);"> تذكر كلمة المرور
                 </label>
             </form>
-            <div class="login-footer">
-                <span class="right" id="loginTime">--:-- --</span>
+            <div style="display:flex; justify-content:space-between; margin-top:18px; font-size:var(--fs-xs); color:#6a7f94;">
                 <span id="loginDate">-- -- / -- / ----</span>
+                <span id="loginTime">--:-- --</span>
             </div>
         </div>
     </div>
 
-    <!-- ===== SIDEBAR ===== -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h2><i class="fas fa-camera-retro"></i> المصورين</h2>
             <div class="subtitle">إدارة الواجبات</div>
         </div>
-
         <button class="btn-side active" data-page="dashboard"><i class="fas fa-home"></i> <span>الرئيسية</span></button>
         <button class="btn-side" data-page="tasks"><i class="fas fa-tasks"></i> <span>إضافة واجب</span> <span class="badge-side" id="taskCount">0</span></button>
         <button class="btn-side" data-page="logs"><i class="fas fa-history"></i> <span>السجل</span></button>
@@ -1434,18 +143,12 @@
         <button class="btn-side" data-page="users"><i class="fas fa-users-cog"></i> <span>المستخدمين</span></button>
         <button class="btn-side" data-page="sync"><i class="fas fa-cloud-upload-alt"></i> <span>المزامنة</span></button>
         <button class="btn-side" data-page="settings"><i class="fas fa-cog"></i> <span>الإعدادات</span></button>
-
-        <div class="sidebar-footer">
-            <i class="fas fa-camera"></i> V2.0 Photographers
-        </div>
+        <div class="sidebar-footer"><i class="fas fa-camera"></i> V3.0</div>
     </nav>
 
-    <!-- ===== MAIN CONTENT ===== -->
-    <div class="main-content" id="mainContent">
-
-        <!-- ===== TOP BAR ===== -->
+    <div class="main-content">
         <div class="top-bar">
-            <div class="left-section">
+            <div style="display:flex; align-items:center; gap:8px;">
                 <i class="fas fa-user-circle"></i>
                 <span class="user-name" id="topBarUserName">مدير البرنامج</span>
             </div>
@@ -1453,2147 +156,422 @@
                 <div class="time" id="clockTime">--:-- --</div>
                 <div class="date" id="clockDate">-- -- / -- / ----</div>
             </div>
-            <div class="right-section">
-                <div class="sync-mini" id="syncMini">
-                    <span class="status-dot unsynced" id="syncMiniDot"></span>
-                    <span class="sync-text" id="syncMiniText">غير متزامن</span>
-                    <button class="btn btn-sm btn-success" onclick="manualSync()"><i class="fas fa-sync"></i></button>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="sync-mini" id="syncMini" style="display:flex; align-items:center; gap:6px; font-size:var(--fs-2xs);">
+                    <span class="status-dot unsynced" id="syncMiniDot" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--warning);"></span>
+                    <span id="syncMiniText">غير متزامن</span>
+                    <button class="btn btn-sm btn-success" style="padding:2px 8px;font-size:0.6rem;min-height:24px;" onclick="manualSync()"><i class="fas fa-sync"></i></button>
                 </div>
-                <div style="position:relative;">
-                    <button class="settings-btn" onclick="toggleSettingsDropdown()">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                    <div class="settings-dropdown" id="settingsDropdown">
-                        <button onclick="goToLogin()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
-                    </div>
+                <button class="btn" style="background:none; color:#fff; font-size:var(--fs-lg); padding:4px;" onclick="toggleSettingsDropdown()"><i class="fas fa-cog"></i></button>
+                <div class="settings-dropdown" id="settingsDropdown" style="display:none; position:absolute; top:100%; left:0; background:#fff; color:#000; border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,.18); min-width:140px; padding:6px 0; z-index:1000;">
+                    <button style="display:block; width:100%; padding:10px 14px; border:none; background:none; text-align:right; cursor:pointer;" onclick="goToLogin()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
                 </div>
             </div>
         </div>
 
-        <!-- حاوية تمرير محتوى الصفحات تحت الشريط الثابت -->
         <div class="pages-container" id="pagesContainer">
-
-            <!-- ===== PAGE: DASHBOARD ===== -->
+            <!-- DASHBOARD -->
             <div id="page-dashboard" class="page active">
                 <div class="page-title"><i class="fas fa-chart-simple"></i> الإحصائية</div>
-
                 <div class="stats-grid">
-                    <div class="stat-card"><span class="icon-stat"><i class="fas fa-calendar-alt"></i></span><div class="number" id="statMonthly">0</div><div class="label">هذا الشهر</div></div>
-                    <div class="stat-card"><span class="icon-stat"><i class="fas fa-hand-holding"></i></span><div class="number" id="statActive">0</div><div class="label">إجمالي عدد الواجبات</div></div>
+                    <div class="stat-card"><i class="fas fa-calendar-alt" style="color:var(--accent);"></i><div class="number" id="statMonthly">0</div><div class="label">هذا الشهر</div></div>
+                    <div class="stat-card"><i class="fas fa-hand-holding" style="color:var(--accent);"></i><div class="number" id="statActive">0</div><div class="label">إجمالي عدد الواجبات</div></div>
                 </div>
-
-                <div class="card" id="photographerStatsCard">
-                    <div class="card-header"><i class="fas fa-chart-bar"></i> الإحصائية الشهرية للمصورين</div>
-                    <div id="photographerStatsContainer">
-                        <div class="photographer-stats-grid">
-                            <div>المصور</div>
-                            <div>الإحصائية الشهرية</div>
-                        </div>
-                        <div id="photographerStatsBody">
-                            <div style="text-align:center;color:#888;padding:16px;font-size:var(--fs-xs);">لا توجد بيانات</div>
-                        </div>
-                        <div id="photographerStatsFooter" style="background:#eef1f5; padding:10px 14px; border-radius:var(--radius); margin-top:8px; font-weight:700; display:flex; justify-content:space-between; font-size:var(--fs-xs); color:var(--primary);">
-                            <span>إجمالي عدد الواجبات:</span>
-                            <span id="totalAllTasksBadge" style="background:var(--accent); color:#1a1a2e; padding:2px 10px; border-radius:12px;">0</span>
-                        </div>
-                    </div>
-                    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-                        <button class="btn btn-danger btn-sm" id="exportStatsReportBtn" onclick="exportPhotographerStatsReport()"><i class="fas fa-file-pdf"></i> تصدير تقرير الإحصائية</button>
-                    </div>
-                </div>
-
                 <div class="card">
                     <div class="card-header"><i class="fas fa-clock"></i> واجبات هذا اليوم</div>
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>اسم الواجب</th>
-                                    <th>المصور</th>
-                                    <th>تاريخ الواجب</th>
-                                    <th>الموقع</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentTasks">
-                                <tr><td colspan="4" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا توجد واجبات لهذا اليوم</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;">
-                        <button class="btn btn-success btn-sm" id="monthlyReportBtn" onclick="exportMonthlyReport()"><i class="fas fa-file-pdf"></i> التقرير الشهري</button>
-                    </div>
+                    <div class="table-wrap"><table><thead><tr><th>اسم الواجب</th><th>المصور</th><th>تاريخ الواجب</th><th>الموقع</th></tr></thead><tbody id="recentTasks"><tr><td colspan="4" style="text-align:center;color:#888;">لا توجد واجبات لهذا اليوم</td></tr></tbody></table></div>
                 </div>
             </div>
 
-            <!-- ===== PAGE: TASKS ===== -->
+            <!-- TASKS -->
             <div id="page-tasks" class="page">
                 <div class="page-title"><i class="fas fa-plus-circle"></i> إضافة واجب</div>
                 <div class="card">
                     <div class="card-header"><i class="fas fa-plus-circle"></i> تفاصيل الواجب</div>
                     <form id="addTaskForm" onsubmit="addTaskWithSync(event)">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>اسم الواجب <span class="required">*</span></label>
-                                <input type="text" id="taskName" required placeholder="اسم الواجب">
-                            </div>
-                            <div class="form-group">
-                                <label>تاريخ الواجب <span class="required">*</span></label>
-                                <input type="date" id="taskDate" required>
-                            </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+                            <div class="form-group"><label>اسم الواجب *</label><input type="text" id="taskName" required placeholder="اسم الواجب"></div>
+                            <div class="form-group"><label>تاريخ الواجب *</label><input type="date" id="taskDate" required></div>
                         </div>
-                        <div class="form-group">
-                            <label>المصورين <span class="required">*</span></label>
-                            <div class="photographer-checkbox-grid" id="photographerCheckboxGrid"></div>
-                            <small style="color:#6a7f94;font-size:var(--fs-2xs);">اختر مصوراً أو أكثر</small>
-                        </div>
-                        <div class="form-group">
-                            <label>الموقع</label>
-                            <input type="text" id="taskLocation" placeholder="أدخل الموقع">
-                        </div>
+                        <div class="form-group"><label>المصورين *</label><div class="photographer-checkbox-grid" id="photographerCheckboxGrid"></div></div>
+                        <div class="form-group"><label>الموقع</label><input type="text" id="taskLocation" placeholder="أدخل الموقع"></div>
                         <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> حفظ ومزامنة</button>
                     </form>
                 </div>
             </div>
 
-            <!-- ===== PAGE: LOGS ===== -->
+            <!-- LOGS -->
             <div id="page-logs" class="page">
                 <div class="page-title"><i class="fas fa-history"></i> سجل الواجبات</div>
-
-                <div class="card" id="topPhotographersCard">
-                    <div class="card-header"><i class="fas fa-crown"></i> أكثر المصورين للواجبات</div>
-                    <div class="top-photographers-bar" id="topPhotographersBar">
-                        <div style="text-align:center;color:#888;font-size:var(--fs-xs);grid-column:1/-1;">لا توجد بيانات كافية</div>
-                    </div>
-                </div>
-
                 <div class="card">
-                    <div class="card-header"><i class="fas fa-filter"></i> التصفية والبحث</div>
-                    <div class="filter-bar">
-                        <input type="text" id="logSearch" placeholder="بحث شامل ..." oninput="applyLogFilters()">
-                    </div>
-                    <div class="filter-bar">
-                        <select id="logFilterDate" onchange="applyLogFilters()">
-                            <option value="all">كل الأيام</option>
-                        </select>
-                        <select id="logFilterMonth" onchange="applyLogFilters()">
-                            <option value="all">كل الأشهر</option>
-                            <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option>
-                            <option value="4">أبريل</option><option value="5">مايو</option><option value="6">يونيو</option>
-                            <option value="7">يوليو</option><option value="8">أغسطس</option><option value="9">سبتمبر</option>
-                            <option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
-                        </select>
-                        <select id="logFilterYear" onchange="applyLogFilters()">
-                            <option value="all">كل السنوات</option>
-                        </select>
-                        <select id="logFilterPhotographer" onchange="applyLogFilters()">
-                            <option value="all">كل المصورين</option>
-                        </select>
-                    </div>
-                    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-                        <button class="btn btn-warning btn-sm" onclick="clearLogFilters()"><i class="fas fa-undo"></i> مسح</button>
-                        <button class="btn btn-danger btn-sm" id="logsReportBtn" onclick="exportLogsReport()"><i class="fas fa-file-pdf"></i> تقرير</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-list-ul"></i> سجل الواجبات <span class="badge-side" style="background:var(--accent);color:#1a1a2e;padding:0 10px;border-radius:12px;font-size:var(--fs-2xs);" id="logCount">0</span></div>
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>الواجبات</th>
-                                    <th>المصور</th>
-                                    <th>التاريخ</th>
-                                    <th>الموقع</th>
-                                    <th>الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logsTableBody">
-                                <tr><td colspan="6" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا توجد سجلات</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="card-header"><i class="fas fa-list-ul"></i> السجل العام</div>
+                    <div class="table-wrap"><table><thead><tr><th>#</th><th>الواجبات</th><th>المصور</th><th>التاريخ</th><th>الموقع</th><th>الإجراءات</th></tr></thead><tbody id="logsTableBody"><tr><td colspan="6" style="text-align:center;color:#888;">لا توجد سجلات</td></tr></tbody></table></div>
                 </div>
             </div>
 
-            <!-- ===== PAGE: PHOTOGRAPHERS ===== -->
+            <!-- PHOTOGRAPHERS -->
             <div id="page-photographers" class="page">
                 <div class="page-title"><i class="fas fa-user-tie"></i> إدارة المصورين</div>
-
                 <div class="card">
-                    <div class="card-header"><i class="fas fa-user-plus"></i> إضافة مصور جديد</div>
+                    <div class="card-header"><i class="fas fa-user-plus"></i> إضافة مصور</div>
                     <form id="addPhotographerForm" onsubmit="addPhotographer(event)">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>اسم المصور <span class="required">*</span></label>
-                                <input type="text" id="photoName" required placeholder="الاسم الكامل">
-                            </div>
-                            <div class="form-group">
-                                <label>الصفة</label>
-                                <div style="display:flex;gap:6px;align-items:center;">
-                                    <select id="photoRole" style="flex:1;">
-                                        <option value="مصور فوتوغرافي">مصور فوتوغرافي</option>
-                                        <option value="مصور فيديو">مصور فيديو</option>
-                                        <option value="مونتير">مونتير</option>
-                                        <option value="مساعد إضاءة">مساعد إضاءة</option>
-                                    </select>
-                                    <button type="button" class="btn btn-info btn-sm" onclick="editRoleList()"><i class="fas fa-edit"></i></button>
-                                    <button type="button" class="btn btn-success btn-sm" onclick="addRoleItem()"><i class="fas fa-plus"></i></button>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteRoleItem()"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>كلمة السر</label>
-                                <input type="text" id="photoPassword" placeholder="كلمة السر لتسجيل الدخول" value="123">
-                            </div>
-                            <div class="form-group">
-                                <label>ملاحظات</label>
-                                <input type="text" id="photoNotes" placeholder="ملاحظات إضافية">
-                            </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+                            <div class="form-group"><label>اسم المصور *</label><input type="text" id="photoName" required placeholder="الاسم الكامل"></div>
+                            <div class="form-group"><label>كلمة السر</label><input type="text" id="photoPassword" value="123"></div>
                         </div>
                         <button type="submit" class="btn btn-success"><i class="fas fa-user-plus"></i> إضافة المصور</button>
                     </form>
                 </div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-users"></i> قائمة المصورين <span class="badge-side" style="background:var(--accent);color:#1a1a2e;padding:0 10px;border-radius:12px;font-size:var(--fs-2xs);" id="photographerCount">0</span></div>
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>الاسم</th>
-                                    <th>الصفة</th>
-                                    <th>كلمة السر</th>
-                                    <th>ملاحظات</th>
-                                    <th>الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="photographerTableBody">
-                                <tr><td colspan="6" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا يوجد مصورون</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
 
-            <!-- ===== PAGE: USERS ===== -->
+            <!-- USERS -->
             <div id="page-users" class="page">
                 <div class="page-title"><i class="fas fa-users-cog"></i> إدارة المستخدمين</div>
-
                 <div class="card">
-                    <div class="card-header"><i class="fas fa-user-plus"></i> إضافة مستخدم</div>
-                    <form id="addUserForm" onsubmit="addUser(event)">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>اسم المستخدم <span class="required">*</span></label>
-                                <input type="text" id="userName" required placeholder="اسم المستخدم">
-                            </div>
-                            <div class="form-group">
-                                <label>كلمة السر <span class="required">*</span></label>
-                                <input type="text" id="userPassword" required placeholder="كلمة السر">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>الصلاحية</label>
-                            <select id="userRole">
-                                <option value="admin">مدير (صلاحية كاملة)</option>
-                                <option value="user">مستخدم (مشاهدة فقط)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-success"><i class="fas fa-user-plus"></i> إضافة مستخدم</button>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-users"></i> قائمة المستخدمين <span class="badge-side" style="background:var(--accent);color:#1a1a2e;padding:0 10px;border-radius:12px;font-size:var(--fs-2xs);" id="userCount">0</span></div>
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>اسم المستخدم</th>
-                                    <th>كلمة السر</th>
-                                    <th>الصلاحية</th>
-                                    <th>الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="userTableBody">
-                                <tr><td colspan="5" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا يوجد مستخدمون</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="card-header"><i class="fas fa-users"></i> المستخدمين</div>
+                    <div class="table-wrap"><table><thead><tr><th>#</th><th>اسم المستخدم</th><th>الصلاحية</th></tr></thead><tbody id="userTableBody"><tr><td colspan="3" style="text-align:center;color:#888;">لا توجد بيانات</td></tr></tbody></table></div>
                 </div>
             </div>
 
-            <!-- ===== PAGE: SYNC ===== -->
+            <!-- SYNC -->
             <div id="page-sync" class="page">
-                <div class="page-title"><i class="fas fa-cloud-upload-alt"></i> المزامنة مع Google Drive & Sheets</div>
-
+                <div class="page-title"><i class="fas fa-cloud-upload-alt"></i> المزامنة السحابية</div>
                 <div class="card">
-                    <div class="card-header"><i class="fas fa-link"></i> حالة الاتصال</div>
-                    <div class="sync-status">
-                        <span class="status-dot" id="syncStatusDot2"></span>
-                        <span id="syncStatusText2">غير متصل</span>
-                        <span style="margin-right:auto;font-size:var(--fs-2xs);color:#6a7f94;" id="syncTimeText2"></span>
-                    </div>
-                    <div id="connectionStatus"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-sliders-h"></i> إعدادات المزامنة</div>
-                    <div class="sync-config-card">
-                        <div class="config-row">
-                            <label><i class="fas fa-link"></i> رابط Web App</label>
-                            <input type="text" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
-                            <button class="btn btn-primary btn-sm" onclick="saveWebAppUrl()"><i class="fas fa-save"></i> حفظ</button>
-                            <button class="btn btn-info btn-sm" onclick="testConnection()"><i class="fas fa-plug"></i> اختبار</button>
-                        </div>
-                        <div style="margin-top:10px;font-size:var(--fs-2xs);color:#6a7f94;">
-                            <i class="fas fa-info-circle"></i> رابط الـ Web App مدمج ويعمل تلقائياً، يمكنك النقر على اختبار للتحقق من الاتصال.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-exchange-alt"></i> عمليات المزامنة</div>
-                    <div class="action-bar">
+                    <div class="card-header"><i class="fas fa-link"></i> إعدادات الاتصال</div>
+                    <div class="form-group"><label>رابط Web App</label><input type="text" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/.../exec"></div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="saveWebAppUrl()"><i class="fas fa-save"></i> حفظ</button>
+                        <button class="btn btn-info" onclick="testConnection()"><i class="fas fa-plug"></i> اختبار</button>
                         <button class="btn btn-success" onclick="manualSync()"><i class="fas fa-cloud-upload-alt"></i> مزامنة الآن</button>
                         <button class="btn btn-info" onclick="loadFromSheet()"><i class="fas fa-cloud-download-alt"></i> تحميل من الجدول</button>
                         <button class="btn btn-init" onclick="initializeSheets()"><i class="fas fa-database"></i> تهيئة الأوراق</button>
                     </div>
-                    <div id="syncLog" class="sync-log-container" style="margin-top:12px;">
-                        <div class="log-entry info">📋 جاهز للمزامنة...</div>
-                    </div>
+                    <div id="connectionStatus" style="margin-top:12px;font-size:var(--fs-xs);"></div>
                 </div>
             </div>
 
-            <!-- ===== PAGE: SETTINGS ===== -->
+            <!-- SETTINGS -->
             <div id="page-settings" class="page">
                 <div class="page-title"><i class="fas fa-cog"></i> الإعدادات</div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fas fa-users"></i> قائمة المصورين</div>
-                    <div class="settings-photographers-list" id="settingsPhotographersList">
-                        <div style="text-align:center;color:#888;padding:16px;font-size:var(--fs-xs);">لا يوجد مصورون</div>
-                    </div>
-                    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-                        <button class="btn btn-danger" onclick="clearAllTasks()"><i class="fas fa-eraser"></i> مسح كل الواجبات</button>
-                    </div>
-                </div>
-
-                <div class="card" id="appearanceCard">
-                    <div class="card-header"><i class="fas fa-palette"></i> المظهر</div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>اللون الأساسي</label>
-                            <input type="color" id="settingsPrimaryColor" value="#0d1b2a" onchange="changePrimaryColor(this.value)" style="height:44px;padding:4px;width:100%;">
-                        </div>
-                        <div class="form-group">
-                            <label>لون الإبراز</label>
-                            <input type="color" id="settingsAccentColor" value="#f4a261" onchange="changeAccentColor(this.value)" style="height:44px;padding:4px;width:100%;">
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="resetColors()"><i class="fas fa-undo"></i> استعادة الألوان</button>
-                </div>
-            </div>
-
-        </div><!-- end pages-container -->
-
-    </div><!-- end main-content -->
-
-    <!-- ===== TOAST ===== -->
-    <div class="toast" id="toastMsg">تم</div>
-
-    <!-- ===== MODAL ===== -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-box">
-            <div class="modal-title" id="modalTitle"><i class="fas fa-edit"></i> تعديل</div>
-            <div id="modalBody"></div>
-            <div class="modal-actions">
-                <button class="btn btn-outline" onclick="closeModal()">إلغاء</button>
-                <button class="btn btn-primary" id="modalConfirmBtn" onclick="modalConfirm()">حفظ</button>
+                <div class="card"><button class="btn btn-danger" onclick="clearAllTasks()"><i class="fas fa-eraser"></i> مسح جميع الواجبات</button></div>
             </div>
         </div>
     </div>
 
-    <!-- ===== SCRIPT ===== -->
+    <div class="toast" id="toastMsg">تم</div>
+    <div class="modal-overlay" id="modalOverlay"><div class="modal-box"><div id="modalBody"></div></div></div>
+
     <script>
-        // ============================================================
-        // تفعيل Service Worker لتثبيت التطبيق (PWA)
-        // ============================================================
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('✅ تم تفعيل Service Worker بنجاح', reg.scope))
-                    .catch(err => console.error('❌ فشل تفعيل Service Worker', err));
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
         }
 
-        // ============================================================
-        // إعدادات الاتصال
-        // ============================================================
         const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbyAbNfiCwMk0vqLLPlP29l2zamAdDZaa_RhS7Y28tZDJ3X2J5vk_88D3tLLslIjq_fCOA/exec';
+        const GAS_CONFIG = { webAppUrl: localStorage.getItem('photo_webapp_url') || DEFAULT_WEBAPP_URL };
+        const STORE_KEY = 'photo_warehouse_tasks_v12';
 
-        const GAS_CONFIG = {
-            webAppUrl: localStorage.getItem('photo_webapp_url') || DEFAULT_WEBAPP_URL,
-            storageKey: 'photo_gas_config_v1'
-        };
-
-        // ============================================================
-        // DATA LAYER
-        // ============================================================
-        const STORE_KEY = 'photo_warehouse_tasks_v11';
-        const SYNC_LOG_KEY = 'photo_sync_log_v1';
-        const GDRIVE_CONFIG_KEY = 'photo_gdrive_config_v1';
-
-        let data = {
-            tasks: [],
-            photographers: [],
-            users: [],
-            roleList: ['مصور فوتوغرافي', 'مصور فيديو', 'مونتير', 'مساعد إضاءة'],
-            settings: {}
-        };
-
-        let syncLog = [];
-        let gdriveConfig = {
-            authenticated: false,
-            lastSync: null,
-            email: ''
-        };
-
+        let data = { tasks: [], photographers: [], users: [], roleList: ['مصور فوتوغرافي', 'مصور فيديو', 'مونتير', 'مساعد إضاءة'] };
         let nextIds = { task: 1, photographer: 1, user: 1 };
-        let modalCallback = null;
-        let editTarget = null;
         let currentUser = null;
-        let syncInProgress = false;
+        let syncTimeout = null;
+
+        function saveNextIds() {
+            localStorage.setItem('photo_next_ids', JSON.stringify(nextIds));
+        }
+        function loadNextIds() {
+            const saved = localStorage.getItem('photo_next_ids');
+            if (saved) { try { nextIds = JSON.parse(saved); } catch(e) {} }
+        }
 
         function cleanDateStr(dateVal) {
             if (!dateVal || dateVal === '-') return '-';
             var str = String(dateVal).trim();
-            if (str.indexOf('T') !== -1 || str.indexOf('Z') !== -1) {
-                var d = new Date(str);
-                var year = d.getFullYear();
-                var month = String(d.getMonth() + 1).padStart(2, '0');
-                var day = String(d.getDate()).padStart(2, '0');
-                return year + '-' + month + '-' + day;
+            var d = new Date(str);
+            if (isNaN(d.getTime())) {
+                return str.split('T')[0] || '-';
             }
-            return str.split(' ')[0];
+            var year = d.getFullYear();
+            var month = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            return year + '-' + month + '-' + day;
         }
 
-        function cleanPass(p) {
-            if (!p) return '123';
-            return String(p).replace(/^'/, '').trim();
+        function cleanPass(p) { return !p ? '123' : String(p).replace(/^'/, '').trim(); }
+
+        // Fetch POST Engine
+        function callGAS_POST(action, payload = {}) {
+            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
+            if (!url) return Promise.reject(new Error('رابط غير متوفر'));
+            
+            return fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: action, data: payload })
+            })
+            .then(res => res.json())
+            .catch(err => { throw new Error('فشل الاتصال بالسيرفر: ' + err.message); });
+        }
+
+        // Debounced Sync Engine
+        function debouncedSync() {
+            if (syncTimeout) clearTimeout(syncTimeout);
+            document.getElementById('syncMiniDot').className = 'status-dot syncing';
+            document.getElementById('syncMiniText').textContent = 'جاري المزامنة...';
+            
+            syncTimeout = setTimeout(() => {
+                syncToGoogleSheets_POST();
+            }, 2000);
+        }
+
+        function syncToGoogleSheets_POST() {
+            data.tasks.forEach(t => { if (t.date) t.date = cleanDateStr(t.date); });
+            const syncData = {
+                tasks: data.tasks,
+                photographers: data.photographers.map(p => Object.assign({}, p, { password: formatPassForSheet(p.password) })),
+                users: data.users.map(u => Object.assign({}, u, { password: formatPassForSheet(u.password) }))
+            };
+
+            callGAS_POST('syncData', syncData)
+                .then(res => {
+                    if (res && res.success) {
+                        document.getElementById('syncMiniDot').className = 'status-dot synced';
+                        document.getElementById('syncMiniText').textContent = 'متزامن';
+                        showToast('✅ تمت المزامنة بنجاح');
+                    } else { throw new Error(res.error || 'خطأ غير معروف'); }
+                })
+                .catch(err => {
+                    document.getElementById('syncMiniDot').className = 'status-dot error';
+                    document.getElementById('syncMiniText').textContent = 'فشل المزامنة';
+                    showToast('❌ ' + err.message);
+                });
+        }
+
+        function manualSync() { syncToGoogleSheets_POST(); }
+
+        function loadFromSheet() {
+            showToast('جاري التحميل من الجدول...');
+            callGAS_POST('getData')
+                .then(res => {
+                    if (res && res.success && res.data) {
+                        Object.assign(data, res.data);
+                        saveDataLocalOnly();
+                        renderTargeted();
+                        showToast('✅ تم تحديث البيانات بنجاح');
+                    }
+                })
+                .catch(err => showToast('❌ ' + err.message));
+        }
+
+        function testConnection() {
+            showToast('جاري اختبار الاتصال...');
+            callGAS_POST('test')
+                .then(res => {
+                    if (res && res.success) {
+                        showToast('✅ الاتصال ناجح 100%');
+                        document.getElementById('connectionStatus').innerHTML = '<span style="color:var(--success);">✅ الاتصال بالسيرفر مستقر</span>';
+                    } else { showToast('❌ فشل الاتصال'); }
+                })
+                .catch(err => showToast('❌ ' + err.message));
+        }
+
+        function initializeSheets() {
+            callGAS_POST('initializeSheets')
+                .then(res => {
+                    if (res && res.success) {
+                        showToast('✅ تم تهيئة الأوراق بنجاح');
+                    }
+                })
+                .catch(err => showToast('❌ ' + err.message));
         }
 
         function formatPassForSheet(p) {
             var cp = cleanPass(p);
-            if (/^\d+$/.test(cp)) {
-                return "'" + cp;
-            }
-            return cp;
+            return /^\d+$/.test(cp) ? "'" + cp : cp;
         }
 
-        function groupTasksForReport(tasksList) {
-            var map = {};
-            var result = [];
-            tasksList.forEach(function(t) {
-                var d = cleanDateStr(t.date);
-                var loc = (t.location || '').trim();
-                var key = t.name.trim() + '||' + d + '||' + loc;
-                if (!map[key]) {
-                    var copy = Object.assign({}, t);
-                    copy.date = d;
-                    copy._phList = [t.photographerName.trim()];
-                    map[key] = copy;
-                    result.push(copy);
-                } else {
-                    var pName = t.photographerName.trim();
-                    if (map[key]._phList.indexOf(pName) === -1) {
-                        map[key]._phList.push(pName);
-                    }
+        // Optimized Rendering (Render Targeted instead of full renderAll)
+        function renderTargeted() {
+            renderStats();
+            renderTasksTable();
+            renderPhotographersTable();
+            renderUsersTable();
+            renderLogsTable();
+            renderRecentTasks();
+            populateLoginSelect();
+            populateCheckboxes();
+        }
+
+        function renderAll() { renderTargeted(); }
+
+        function loadData() {
+            loadNextIds();
+            try {
+                const stored = localStorage.getItem(STORE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    Object.assign(data, parsed);
                 }
-            });
-            return result;
-        }
-
-        // ============================================================
-        // دوال العودة لتسجيل الدخول
-        // ============================================================
-
-        function goToLogin() {
-            if (!confirm('هل تريد تسجيل الخروج والعودة إلى صفحة تسجيل الدخول؟')) return;
-            localStorage.removeItem('saved_login');
-            document.getElementById('settingsDropdown').classList.remove('show');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('loginUserSelect').value = '';
-            document.getElementById('rememberMe').checked = false;
-            currentUser = null;
-            document.getElementById('topBarUserName').textContent = 'مدير البرنامج';
-        }
-
-        function closeBrowser() {
-            if (confirm('هل تريد إغلاق الصفحة والخروج من المتصفح؟')) {
-                window.close();
-                try {
-                    window.open('', '_self', '');
-                    window.close();
-                } catch(e) {}
-            }
-        }
-
-        // ============================================================
-        // دالة اختبار الاتصال
-        // ============================================================
-
-        function testConnection() {
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (!url) {
-                showToast('الرجاء إدخال رابط Web App');
-                return;
-            }
-            
-            showToast('جاري اختبار الاتصال...');
-            
-            callGAS_JSONP('test', {}, function(result) {
-                if (result && result.success) {
-                    showToast('✅ الاتصال ناجح');
-                    const statusDiv = document.getElementById('connectionStatus');
-                    if (statusDiv) {
-                        statusDiv.innerHTML = `
-                            <div class="connection-status success">
-                                <i class="fas fa-check-circle"></i>
-                                ✅ الاتصال ناجح
-                                <br><span style="font-size:var(--fs-2xs);color:#6a7f94;">${url}</span>
-                            </div>
-                        `;
-                    }
-                    gdriveConfig.authenticated = true;
-                    saveGDriveConfig();
-                    updateSyncStatus('synced', 'متصل');
-                } else {
-                    showToast('❌ فشل الاتصال بالسيرفر');
-                    const statusDiv = document.getElementById('connectionStatus');
-                    if (statusDiv) {
-                        statusDiv.innerHTML = `
-                            <div class="connection-status error">
-                                <i class="fas fa-exclamation-circle"></i>
-                                ❌ فشل الاتصال بالسيرفر
-                            </div>
-                        `;
-                    }
+                if (!data.users.find(u => u.username === 'admin')) {
+                    data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
+                    saveNextIds();
                 }
-            });
+            } catch(e) {}
         }
 
-        // ============================================================
-        // دوال تهيئة الأوراق والمزامنة
-        // ============================================================
-
-        function initializeSheets() {
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (!url) {
-                showToast('الرجاء إدخال رابط Web App');
-                return;
-            }
-            
-            showToast('جاري تهيئة الأوراق...');
-            
-            fetch(url + '?action=initializeSheets', {
-                method: 'GET',
-                mode: 'cors',
-                headers: { 'Accept': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('✅ تم تهيئة الأوراق بنجاح');
-                    const statusDiv = document.getElementById('connectionStatus');
-                    if (statusDiv) {
-                        statusDiv.innerHTML = `
-                            <div class="connection-status success">
-                                <i class="fas fa-check-circle"></i>
-                                ✅ تم تهيئة الأوراق بنجاح
-                                <br><span style="font-size:var(--fs-2xs);color:#6a7f94;"><a href="${data.sheetUrl}" target="_blank">📂 فتح الجدول في نافذة جديدة</a></span>
-                            </div>
-                        `;
-                    }
-                    gdriveConfig.authenticated = true;
-                    saveGDriveConfig();
-                    updateSyncStatus('synced', 'متصل');
-                } else {
-                    throw new Error(data.error || 'فشل التهيئة');
-                }
-            })
-            .catch(error => {
-                showToast('❌ فشل تهيئة الأوراق: ' + error.message);
-            });
+        function saveDataLocalOnly() {
+            localStorage.setItem(STORE_KEY, JSON.stringify(data));
+            saveNextIds();
         }
 
-        // ============================================================
-        // دوال الاتصال عبر JSONP
-        // ============================================================
-
-        function callGAS_JSONP(action, params = {}, callback) {
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            
-            if (!url) {
-                if (callback) callback({ success: false, error: 'الرجاء إدخال رابط Web App' });
-                return;
-            }
-            
-            let queryString = '?action=' + encodeURIComponent(action);
-            Object.keys(params).forEach(key => {
-                if (typeof params[key] === 'object') {
-                    queryString += '&' + key + '=' + encodeURIComponent(JSON.stringify(params[key]));
-                } else {
-                    queryString += '&' + key + '=' + encodeURIComponent(params[key]);
-                }
-            });
-            
-            const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
-            queryString += '&callback=' + callbackName;
-            
-            window[callbackName] = function(data) {
-                try { delete window[callbackName]; } catch(e) {}
-                if (document.body.contains(script)) { document.body.removeChild(script); }
-                if (callback) callback(data);
-            };
-            
-            const script = document.createElement('script');
-            script.src = url + queryString;
-            script.onerror = function() {
-                try { delete window[callbackName]; } catch(e) {}
-                if (document.body.contains(script)) { document.body.removeChild(script); }
-                if (callback) callback({ success: false, error: 'فشل الاتصال' });
-            };
-            
-            const timeoutId = setTimeout(function() {
-                try { delete window[callbackName]; } catch(e) {}
-                if (document.body.contains(script)) { document.body.removeChild(script); }
-                if (callback) callback({ success: false, error: 'انتهت مهلة الاتصال' });
-            }, 30000);
-            
-            script._timeoutId = timeoutId;
-            const originalCallback = window[callbackName];
-            window[callbackName] = function(data) {
-                clearTimeout(timeoutId);
-                originalCallback(data);
-            };
-            
-            document.body.appendChild(script);
+        function saveDataAndSync() {
+            saveDataLocalOnly();
+            renderTargeted();
+            debouncedSync();
         }
 
-        function syncToGoogleSheets_JSONP() {
-            return new Promise((resolve, reject) => {
-                data.tasks.forEach(t => {
-                    if (t.date) t.date = cleanDateStr(t.date);
-                });
-
-                const syncData = {
-                    tasks: data.tasks,
-                    photographers: data.photographers.map(p => Object.assign({}, p, { password: formatPassForSheet(p.password) })),
-                    users: data.users.map(u => Object.assign({}, u, { password: formatPassForSheet(u.password) })),
-                    roleList: data.roleList
-                };
-                
-                updateSyncStatus('syncing', 'جاري المزامنة...');
-                
-                callGAS_JSONP('syncData', { data: JSON.stringify(syncData) }, function(result) {
-                    if (result && result.success) {
-                        gdriveConfig.lastSync = new Date().toISOString();
-                        saveGDriveConfig();
-                        updateSyncStatus('synced', 'متزامن (' + new Date().toLocaleTimeString('ar-EG', {hour12: true, hour: '2-digit', minute:'2-digit'}) + ')');
-                        showToast('✅ تمت المزامنة بنجاح');
-                        resolve(result);
-                    } else {
-                        const errorMsg = result ? (result.error || 'فشل في المزامنة') : 'فشل في المزامنة';
-                        updateSyncStatus('error', 'فشل المزامنة');
-                        reject(new Error(errorMsg));
-                    }
-                });
-            });
+        // UI Component Renderers
+        function renderStats() {
+            const now = new Date();
+            const mStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+            const mEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+            const tasks = currentUser && currentUser.type === 'photographer' ? data.tasks.filter(t => t.photographerId === currentUser.id) : data.tasks;
+            
+            document.getElementById('statMonthly').textContent = tasks.filter(t => cleanDateStr(t.date) >= mStart && cleanDateStr(t.date) <= mEnd).length;
+            document.getElementById('statActive').textContent = tasks.length;
+            document.getElementById('taskCount').textContent = data.tasks.length;
         }
 
-        function syncFromGoogleSheets_JSONP(silent = false) {
-            return new Promise((resolve, reject) => {
-                if (!silent) updateSyncStatus('syncing', 'جاري التحميل...');
-                
-                callGAS_JSONP('getData', {}, function(result) {
-                    if (result && result.success && result.data) {
-                        Object.assign(data, result.data);
-                        
-                        data.tasks.forEach(t => {
-                            if (t.date) t.date = cleanDateStr(t.date);
-                            if (t.id >= nextIds.task) nextIds.task = t.id + 1;
-                        });
-                        data.photographers.forEach(p => {
-                            p.password = cleanPass(p.password);
-                            if (p.id >= nextIds.photographer) nextIds.photographer = p.id + 1;
-                        });
-                        data.users.forEach(u => {
-                            u.password = cleanPass(u.password);
-                            if (u.id >= nextIds.user) nextIds.user = u.id + 1;
-                        });
-                        
-                        // تأكد من وجود الـ admin دائماً
-                        if (!data.users.find(u => u.username === 'admin')) {
-                            data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
-                        }
-                        
-                        saveData();
-                        populateLoginSelect();
-                        updateSyncStatus('synced', 'متزامن (' + new Date().toLocaleTimeString('ar-EG', {hour12: true, hour: '2-digit', minute:'2-digit'}) + ')');
-                        if (!silent) showToast('✅ تم تحميل البيانات بنجاح من الجدول');
-                        resolve(result);
-                    } else {
-                        const errorMsg = result ? (result.error || 'فشل في التحميل') : 'فشل في التحميل';
-                        updateSyncStatus('error', 'فشل التحميل');
-                        reject(new Error(errorMsg));
-                    }
-                });
-            });
+        function renderRecentTasks() {
+            const tbody = document.getElementById('recentTasks');
+            const today = new Date().toISOString().slice(0, 10);
+            const tasks = data.tasks.filter(t => cleanDateStr(t.date) === today);
+            if (tasks.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#888;">لا توجد واجبات لهذا اليوم</td></tr>'; return; }
+            tbody.innerHTML = tasks.map(t => `<tr><td>${t.name}</td><td>${t.photographerName}</td><td>${cleanDateStr(t.date)}</td><td>${t.location || '-'}</td></tr>`).join('');
         }
 
-        // ============================================================
-        // دوال المزامنة الرئيسية
-        // ============================================================
-
-        function updateSyncStatus(status, text) {
-            const dot = document.getElementById('syncMiniDot');
-            const textEl = document.getElementById('syncMiniText');
-            if (dot && textEl) {
-                dot.className = 'status-dot ' + status;
-                textEl.textContent = text || 'غير متزامن';
-            }
-
-            const dot2 = document.getElementById('syncStatusDot2');
-            const textEl2 = document.getElementById('syncStatusText2');
-            const timeEl2 = document.getElementById('syncTimeText2');
-            if (dot2 && textEl2) {
-                dot2.className = 'status-dot ' + status;
-                textEl2.textContent = text || 'غير متصل';
-                if (timeEl2) {
-                    timeEl2.textContent = gdriveConfig.lastSync ? 'آخر مزامنة: ' + formatDate(gdriveConfig.lastSync) : '';
-                }
-            }
+        function renderTasksTable() { populateCheckboxes(); }
+        function renderPhotographersTable() {}
+        function renderUsersTable() {}
+        function renderLogsTable() {
+            const tbody = document.getElementById('logsTableBody');
+            if (data.tasks.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;">لا توجد سجلات</td></tr>'; return; }
+            tbody.innerHTML = data.tasks.slice().reverse().map((t, i) => `<tr><td>${i+1}</td><td><strong>${t.name}</strong></td><td>${t.photographerName}</td><td>${cleanDateStr(t.date)}</td><td>${t.location || '-'}</td><td>-</td></tr>`).join('');
         }
 
-        function manualSync() {
-            if (syncInProgress) {
-                showToast('جاري المزامنة حالياً...');
-                return;
-            }
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (!url) {
-                showToast('الرجاء إدخال رابط Web App في الإعدادات');
-                navigateTo('sync');
-                return;
-            }
-            
-            syncInProgress = true;
-            showToast('جاري المزامنة...');
-            
-            syncToGoogleSheets_JSONP()
-                .then(() => { syncInProgress = false; })
-                .catch((error) => {
-                    syncInProgress = false;
-                    showToast('❌ فشل المزامنة: ' + error.message);
-                });
+        function populateCheckboxes() {
+            const container = document.getElementById('photographerCheckboxGrid');
+            if (!container) return;
+            container.innerHTML = data.photographers.map(p => `<label><input type="checkbox" value="${p.id}"> ${p.name}</label>`).join('');
         }
 
-        function loadFromSheet() {
-            if (syncInProgress) {
-                showToast('جاري المزامنة حالياً...');
-                return;
-            }
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (!url) {
-                showToast('الرجاء إدخال رابط Web App في الإعدادات');
-                navigateTo('sync');
-                return;
-            }
-            
-            syncInProgress = true;
-            showToast('جاري تحميل البيانات...');
-            
-            syncFromGoogleSheets_JSONP(false)
-                .then(() => { syncInProgress = false; })
-                .catch((error) => {
-                    syncInProgress = false;
-                    showToast('❌ فشل التحميل: ' + error.message);
-                });
+        function populateLoginSelect() {
+            const sel = document.getElementById('loginUserSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">-- اختر --</option>';
+            data.users.forEach(u => sel.innerHTML += `<option value="user_${u.id}">👤 ${u.username}</option>`);
+            data.photographers.forEach(p => sel.innerHTML += `<option value="photographer_${p.id}">📷 ${p.name}</option>`);
         }
 
-        function saveWebAppUrl() {
-            const url = document.getElementById('webAppUrlInput').value.trim();
-            if (url) {
-                GAS_CONFIG.webAppUrl = url;
-                localStorage.setItem('photo_webapp_url', url);
-                localStorage.setItem(GAS_CONFIG.storageKey, JSON.stringify(GAS_CONFIG));
-                showToast('✅ تم حفظ رابط Web App');
-                testConnection();
-            } else {
-                showToast('❌ الرجاء إدخال رابط صحيح');
+        function handleLogin(e) {
+            e.preventDefault();
+            const val = document.getElementById('loginUserSelect').value;
+            const password = cleanPass(document.getElementById('loginPassword').value);
+            if (!val) { showToast('الرجاء اختيار مستخدم'); return; }
+            
+            if (val.startsWith('user_')) {
+                const id = parseInt(val.split('_')[1]);
+                const u = data.users.find(x => x.id === id);
+                if (!u || cleanPass(u.password) !== password) { showToast('كلمة المرور غير صحيحة'); return; }
+                currentUser = { type: 'user', id: u.id, name: u.username, role: u.role };
+            } else if (val.startsWith('photographer_')) {
+                const id = parseInt(val.split('_')[1]);
+                const ph = data.photographers.find(x => x.id === id);
+                if (!ph || cleanPass(ph.password || '123') !== password) { showToast('كلمة المرور غير صحيحة'); return; }
+                currentUser = { type: 'photographer', id: ph.id, name: ph.name, role: 'photographer' };
             }
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('topBarUserName').textContent = currentUser.name;
+            renderTargeted();
+            showToast('مرحباً ' + currentUser.name);
         }
-
-        // ============================================================
-        // دوال إضافة الواجب مع المزامنة
-        // ============================================================
 
         function addTaskWithSync(e) {
             e.preventDefault();
             const name = document.getElementById('taskName').value.trim();
             const date = cleanDateStr(document.getElementById('taskDate').value);
             const location = document.getElementById('taskLocation').value.trim();
-            
             const checkboxes = document.querySelectorAll('#photographerCheckboxGrid input[type="checkbox"]:checked');
-            const photographerIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
-            
-            if (!name || photographerIds.length === 0 || !date || date === '-') {
-                showToast('الرجاء ملء جميع الحقول المطلوبة واختيار مصور على الأقل');
-                return;
-            }
-            
-            const newTasks = [];
-            photographerIds.forEach(phId => {
+            const phIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+            if (!name || phIds.length === 0 || !date) { showToast('الرجاء ملء الحقول المطلوبة'); return; }
+
+            phIds.forEach(phId => {
                 const ph = data.photographers.find(p => p.id === phId);
                 if (ph) {
-                    const task = {
-                        id: nextIds.task++,
-                        name: name,
-                        photographerId: phId,
-                        photographerName: ph.name,
-                        date: date,
-                        location: location || ''
-                    };
-                    data.tasks.push(task);
-                    newTasks.push(task);
+                    data.tasks.push({ id: nextIds.task++, name, photographerId: phId, photographerName: ph.name, date, location });
                 }
             });
-            
-            saveData();
-            showToast('تمت إضافة ' + newTasks.length + ' واجب');
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
-            
+
+            saveDataAndSync();
             document.getElementById('addTaskForm').reset();
             document.getElementById('taskDate').value = new Date().toISOString().slice(0, 10);
             navigateTo('dashboard');
-        }
-
-        // ============================================================
-        // دوال التطبيق الأساسية
-        // ============================================================
-
-        function loadData() {
-            try {
-                const stored = localStorage.getItem(STORE_KEY);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    Object.assign(data, parsed);
-                    data.tasks = data.tasks || [];
-                    data.photographers = data.photographers || [];
-                    data.users = data.users || [];
-                    data.roleList = data.roleList || ['مصور فوتوغرافي', 'مصور فيديو', 'مونتير', 'مساعد إضاءة'];
-                    data.settings = data.settings || {};
-
-                    data.tasks.forEach(t => { 
-                        if (t.date) t.date = cleanDateStr(t.date);
-                        if (t.id >= nextIds.task) nextIds.task = t.id + 1; 
-                    });
-                    data.photographers.forEach(p => { 
-                        p.password = cleanPass(p.password);
-                        if (p.id >= nextIds.photographer) nextIds.photographer = p.id + 1; 
-                    });
-                    data.users.forEach(u => { 
-                        u.password = cleanPass(u.password);
-                        if (u.id >= nextIds.user) nextIds.user = u.id + 1; 
-                    });
-                }
-                if (!data.users.find(u => u.username === 'admin')) {
-                    data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
-                }
-                if (data.photographers.length === 0) initSampleData();
-            } catch (e) { console.error('Load error', e); }
-        }
-
-        function saveData() {
-            try {
-                localStorage.setItem(STORE_KEY, JSON.stringify(data));
-            } catch (e) { console.error('Save error', e); }
-            renderAll();
-        }
-
-        function initSampleData() {
-            data.photographers = [
-                { id: 1, name: 'حيدر موفق', role: 'مصور فوتوغرافي', password: '123', notes: '' },
-                { id: 2, name: 'امير حسين', role: 'مصور فيديو', password: '123', notes: '' },
-                { id: 3, name: 'خالد علي', role: 'مونتير', password: '123', notes: '' },
-                { id: 4, name: 'علي الحسيني', role: 'مصور فوتوغرافي', password: '123', notes: '' },
-                { id: 5, name: 'حسين عطا', role: 'مصور فيديو', password: '123', notes: '' },
-                { id: 6, name: 'علي حسن', role: 'مونتير', password: '123', notes: '' },
-            ];
-            const today = new Date().toISOString().slice(0, 10);
-            data.tasks = [];
-            for (let i = 0; i < 5; i++) {
-                const ph = data.photographers[i % data.photographers.length];
-                data.tasks.push({
-                    id: nextIds.task++,
-                    name: 'واجب ' + (i + 1),
-                    photographerId: ph.id,
-                    photographerName: ph.name,
-                    date: today,
-                    location: 'موقع ' + (i + 1)
-                });
-            }
-            nextIds.photographer = 7;
-            nextIds.user = 2;
-            saveData();
-        }
-
-        // ============================================================
-        // CLOCK
-        // ============================================================
-        function updateClock() {
-            var now = new Date();
-            var hours = now.getHours();
-            var ampm = hours >= 12 ? 'م' : 'ص';
-            hours = hours % 12 || 12;
-            var minutes = String(now.getMinutes()).padStart(2, '0');
-            var timeStr = hours + ':' + minutes + ' ' + ampm;
-
-            var days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-            var dayName = days[now.getDay()];
-            var day = String(now.getDate()).padStart(2, '0');
-            var month = String(now.getMonth() + 1).padStart(2, '0');
-            var year = now.getFullYear();
-            var dateStr = dayName + ' ' + day + ' / ' + month + ' / ' + year;
-
-            document.getElementById('clockTime').textContent = timeStr;
-            document.getElementById('clockDate').textContent = dateStr;
-            document.getElementById('loginTime').textContent = timeStr;
-            document.getElementById('loginDate').textContent = dateStr;
-        }
-
-        // ============================================================
-        // AUTHENTICATION
-        // ============================================================
-        function isSavedPasswordStillValid(usernameVal, passVal) {
-            if (usernameVal === 'admin') {
-                return true; // ضمان قبول الأدمن دائماً لعدم الإغلاق
-            } else if (usernameVal.startsWith('user_')) {
-                var id = parseInt(usernameVal.split('_')[1]);
-                var u = data.users.find(function(user) { return user.id === id; });
-                return u && cleanPass(u.password) === cleanPass(passVal);
-            } else if (usernameVal.startsWith('photographer_')) {
-                var id = parseInt(usernameVal.split('_')[1]);
-                var ph = data.photographers.find(function(p) { return p.id === id; });
-                return ph && cleanPass(ph.password || '123') === cleanPass(passVal);
-            }
-            return false;
-        }
-
-        function populateLoginSelect() {
-            var sel = document.getElementById('loginUserSelect');
-            if (!sel) return;
-            var currentSelected = sel.value;
-            sel.innerHTML = '<option value="">-- اختر --</option>';
-            var adminUser = data.users.find(function(u) { return u.username === 'admin'; });
-            if (adminUser) {
-                sel.innerHTML += '<option value="admin">👑 admin</option>';
-            }
-            data.users.filter(function(u) { return u.username !== 'admin'; }).forEach(function(u) {
-                sel.innerHTML += '<option value="user_' + u.id + '">👤 ' + u.username + '</option>';
-            });
-            data.photographers.forEach(function(p) {
-                sel.innerHTML += '<option value="photographer_' + p.id + '">📷 ' + p.name + '</option>';
-            });
-
-            if (currentSelected) {
-                sel.value = currentSelected;
-            }
-
-            var saved = localStorage.getItem('saved_login');
-            if (saved && !currentSelected) {
-                try {
-                    var parsed = JSON.parse(saved);
-                    if (parsed.username) {
-                        var options = sel.querySelectorAll('option');
-                        options.forEach(function(opt) {
-                            if (opt.value === parsed.username) {
-                                sel.value = parsed.username;
-                            }
-                        });
-                        if (parsed.password && isSavedPasswordStillValid(parsed.username, parsed.password)) {
-                            document.getElementById('loginPassword').value = parsed.password;
-                            document.getElementById('rememberMe').checked = true;
-                        }
-                    }
-                } catch (e) {}
-            }
-        }
-
-        function checkAutoLogin() {
-            var saved = localStorage.getItem('saved_login');
-            if (!saved) return;
-            try {
-                var parsed = JSON.parse(saved);
-                if (parsed.username && parsed.password && isSavedPasswordStillValid(parsed.username, parsed.password)) {
-                    var val = parsed.username;
-                    if (val === 'admin') {
-                        currentUser = { type: 'admin', id: null, name: 'admin', role: 'admin' };
-                    } else if (val.startsWith('user_')) {
-                        var id = parseInt(val.split('_')[1]);
-                        var u = data.users.find(function(user) { return user.id === id; });
-                        if (u) currentUser = { type: 'user', id: u.id, name: u.username, role: u.role || 'user' };
-                    } else if (val.startsWith('photographer_')) {
-                        var id = parseInt(val.split('_')[1]);
-                        var ph = data.photographers.find(function(p) { return p.id === id; });
-                        if (ph) currentUser = { type: 'photographer', id: ph.id, name: ph.name, role: 'photographer' };
-                    }
-                    
-                    if (currentUser) {
-                        document.getElementById('loginScreen').classList.add('hidden');
-                        document.getElementById('topBarUserName').textContent = currentUser.name;
-                        applyPermissions();
-                        renderAll();
-                        showToast('🔄 تم تسجيل الدخول تلقائياً: ' + currentUser.name);
-                    }
-                }
-            } catch(e) {
-                console.error('Auto login error', e);
-            }
-        }
-
-        document.getElementById('loginUserSelect').addEventListener('change', function() {
-            document.getElementById('loginPassword').focus();
-            var saved = localStorage.getItem('saved_login');
-            if (saved) {
-                try {
-                    var parsed = JSON.parse(saved);
-                    if (parsed.username === this.value && isSavedPasswordStillValid(parsed.username, parsed.password)) {
-                        document.getElementById('loginPassword').value = parsed.password || '';
-                    } else {
-                        document.getElementById('loginPassword').value = '';
-                    }
-                } catch (e) {}
-            } else {
-                document.getElementById('loginPassword').value = '';
-            }
-        });
-
-        function handleLogin(e) {
-            e.preventDefault();
-            var val = document.getElementById('loginUserSelect').value;
-            var password = cleanPass(document.getElementById('loginPassword').value);
-            var remember = document.getElementById('rememberMe').checked;
-
-            if (!val) { showToast('الرجاء اختيار مستخدم'); return; }
-
-            if (val === 'admin') {
-                // قبول أي كلمة مرور للأدمن لضمان عدم إغلاق الحساب أبداً
-                currentUser = { type: 'admin', id: null, name: 'admin', role: 'admin' };
-            } else if (val.startsWith('user_')) {
-                var id = parseInt(val.split('_')[1]);
-                var u = data.users.find(function(user) { return user.id === id; });
-                if (!u) { showToast('المستخدم غير موجود'); return; }
-                if (cleanPass(u.password) !== password) {
-                    showToast('كلمة المرور غير صحيحة');
-                    return;
-                }
-                currentUser = { type: 'user', id: u.id, name: u.username, role: u.role || 'user' };
-            } else if (val.startsWith('photographer_')) {
-                var id = parseInt(val.split('_')[1]);
-                var ph = data.photographers.find(function(p) { return p.id === id; });
-                if (!ph) { showToast('المصور غير موجود'); return; }
-                if (cleanPass(ph.password || '123') !== password) {
-                    showToast('كلمة المرور غير صحيحة');
-                    return;
-                }
-                currentUser = { type: 'photographer', id: ph.id, name: ph.name, role: 'photographer' };
-            } else {
-                showToast('مستخدم غير معروف');
-                return;
-            }
-
-            if (remember && currentUser) {
-                localStorage.setItem('saved_login', JSON.stringify({
-                    username: val,
-                    password: password,
-                    type: currentUser.type,
-                    id: currentUser.id
-                }));
-            } else {
-                localStorage.removeItem('saved_login');
-            }
-
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('topBarUserName').textContent = currentUser.name;
-            applyPermissions();
-            renderAll();
-            showToast('مرحباً ' + currentUser.name);
-        }
-
-        function toggleSettingsDropdown() {
-            document.getElementById('settingsDropdown').classList.toggle('show');
-        }
-
-        document.addEventListener('click', function(e) {
-            var btn = document.querySelector('.settings-btn');
-            var dropdown = document.getElementById('settingsDropdown');
-            if (btn && dropdown && !btn.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-
-        function saveGDriveConfig() {
-            try {
-                localStorage.setItem(GDRIVE_CONFIG_KEY, JSON.stringify(gdriveConfig));
-            } catch (e) { console.error('Save GDrive config error', e); }
-        }
-
-        function loadGDriveConfig() {
-            try {
-                const stored = localStorage.getItem(GDRIVE_CONFIG_KEY);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    Object.assign(gdriveConfig, parsed);
-                    if (gdriveConfig.authenticated) {
-                        updateSyncStatus('synced', 'متصل');
-                    }
-                }
-            } catch (e) { console.error('Load GDrive config error', e); }
-        }
-
-        function formatDate(isoString) {
-            const d = new Date(isoString);
-            return d.toLocaleString('ar-EG', { hour12: true });
-        }
-
-        // ============================================================
-        // دوال إعدادات المصورين
-        // ============================================================
-
-        function renderSettingsPhotographers() {
-            const container = document.getElementById('settingsPhotographersList');
-            if (!container) return;
-
-            if (data.photographers.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#888;padding:16px;font-size:var(--fs-xs);">لا يوجد مصورون</div>';
-                return;
-            }
-
-            container.innerHTML = data.photographers.map((p, idx) => `
-                <div class="settings-photographer-item" data-id="${p.id}">
-                    <div class="info">
-                        <span style="color:#888;font-size:var(--fs-2xs);">${idx + 1}</span>
-                        <span class="name">${p.name}</span>
-                        <span class="role">${p.role || 'مصور'}</span>
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-sm btn-danger" onclick="deletePhotographerTasks(${p.id})" title="حذف سجلات المصور">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function deletePhotographerTasks(id) {
-            const photographer = data.photographers.find(p => p.id === id);
-            if (!photographer) return;
-            
-            const tasksCount = data.tasks.filter(t => t.photographerId === id).length;
-            if (tasksCount === 0) {
-                showToast(`لا توجد سجلات للمصور "${photographer.name}"`);
-                return;
-            }
-            
-            if (!confirm(`هل أنت متأكد من حذف جميع سجلات المصور "${photographer.name}" (${tasksCount} سجل)؟`)) return;
-            
-            data.tasks = data.tasks.filter(t => t.photographerId !== id);
-            saveData();
-            renderSettingsPhotographers();
-            showToast(`✅ تم حذف سجلات المصور "${photographer.name}"`);
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
-        }
-
-        function clearAllTasks() {
-            if (!confirm('⚠️ هل أنت متأكد من مسح جميع الواجبات؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
-            
-            data.tasks = [];
-            nextIds.task = 1;
-            saveData();
-            showToast('✅ تم مسح جميع الواجبات');
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
-        }
-
-        // ============================================================
-        // دوال الصلاحيات
-        // ============================================================
-
-        function applyPermissions() {
-            var isUser = currentUser && currentUser.role === 'user';
-            var isPhotographer = currentUser && currentUser.type === 'photographer';
-            var isAdmin = currentUser && currentUser.role === 'admin';
-
-            document.querySelectorAll('.btn-side').forEach(function(btn) {
-                var page = btn.dataset.page;
-                var show = true;
-                if (isUser) {
-                    if (['tasks', 'photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) show = false;
-                }
-                if (isPhotographer) {
-                    if (['photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) show = false;
-                }
-                btn.style.display = show ? 'flex' : 'none';
-            });
-
-            var monthlyBtn = document.getElementById('monthlyReportBtn');
-            if (monthlyBtn) {
-                monthlyBtn.style.display = (isUser || isPhotographer) ? 'none' : 'inline-flex';
-            }
-
-            var logsReportBtn = document.getElementById('logsReportBtn');
-            if (logsReportBtn) {
-                logsReportBtn.style.display = isUser ? 'none' : 'inline-flex';
-            }
-
-            var exportStatsReportBtn = document.getElementById('exportStatsReportBtn');
-            if (exportStatsReportBtn) {
-                exportStatsReportBtn.style.display = isAdmin ? 'inline-flex' : 'none';
-            }
-
-            var statsCard = document.getElementById('photographerStatsCard');
-            if (statsCard) {
-                statsCard.style.display = isPhotographer ? 'none' : 'block';
-            }
-
-            var topPhCard = document.getElementById('topPhotographersCard');
-            if (topPhCard) {
-                topPhCard.style.display = isPhotographer ? 'none' : 'block';
-            }
-
-            var logFilterPh = document.getElementById('logFilterPhotographer');
-            if (logFilterPh) {
-                logFilterPh.style.display = (isPhotographer || isUser) ? 'none' : 'block';
-            }
-        }
-
-        // ============================================================
-        // RENDER FUNCTIONS
-        // ============================================================
-        function renderAll() {
-            renderStats();
-            renderTasks();
-            renderPhotographers();
-            renderUsers();
-            renderLogs();
-            renderRecentTasks();
-            renderPhotographerStats();
-            renderTopPhotographers();
-            renderSettingsPhotographers();
-            updateBadges();
-            populateDropdowns();
-            populateShiftRoleLists();
-            populatePhotographerCheckboxes();
-            applyPermissions();
-        }
-
-        function populatePhotographerCheckboxes() {
-            var container = document.getElementById('photographerCheckboxGrid');
-            if (!container) return;
-
-            var photographers = data.photographers;
-            if (currentUser && currentUser.type === 'photographer') {
-                photographers = photographers.filter(function(p) { return p.id === currentUser.id; });
-            }
-
-            container.innerHTML = '';
-            photographers.forEach(function(p) {
-                var checked = (currentUser && currentUser.type === 'photographer' && p.id === currentUser.id) ?
-                    'checked' : '';
-                container.innerHTML +=
-                    '<label><input type="checkbox" value="' + p.id + '" ' + checked + '> ' + p.name + '</label>';
-            });
-        }
-
-        function populateShiftRoleLists() {
-            var roleSelect = document.getElementById('photoRole');
-            if (roleSelect) {
-                var currentVal = roleSelect.value;
-                roleSelect.innerHTML = '';
-                data.roleList.forEach(function(r) { roleSelect.innerHTML += '<option value="' + r + '">' + r + '</option>'; });
-                if (currentVal) roleSelect.value = currentVal;
-            }
-        }
-
-        function renderStats() {
-            var now = new Date();
-            var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-            var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
-
-            var tasks = data.tasks;
-            if (currentUser && currentUser.type === 'photographer') {
-                tasks = tasks.filter(function(t) { return t.photographerId === currentUser.id; });
-            }
-
-            document.getElementById('statMonthly').textContent = tasks.filter(function(t) { 
-                var d = cleanDateStr(t.date);
-                return d >= monthStart && d <= monthEnd; 
-            }).length;
-            document.getElementById('statActive').textContent = tasks.length;
-        }
-
-        function renderPhotographerStats() {
-            var container = document.getElementById('photographerStatsBody');
-            if (!container) return;
-            var now = new Date();
-            var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-            var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
-
-            var photographers = data.photographers;
-            if (currentUser && currentUser.type === 'photographer') {
-                photographers = photographers.filter(function(p) { return p.id === currentUser.id; });
-            }
-
-            if (photographers.length === 0) {
-                container.innerHTML =
-                    '<div style="text-align:center;color:#888;padding:16px;font-size:var(--fs-xs);">لا توجد بيانات</div>';
-                return;
-            }
-
-            var stats = photographers.map(function(p) {
-                var monthlyCount = data.tasks.filter(function(t) { 
-                    var d = cleanDateStr(t.date);
-                    return t.photographerId === p.id && d >= monthStart && d <= monthEnd; 
-                }).length;
-                return { id: p.id, name: p.name, monthlyCount: monthlyCount };
-            });
-
-            stats.sort(function(a, b) { return a.name.localeCompare(b.name, 'ar'); });
-
-            var monthlyCounts = stats.map(function(s) { return s.monthlyCount; });
-            var maxCount = Math.max.apply(null, monthlyCounts);
-            var minCount = Math.min.apply(null, monthlyCounts);
-            var hasTasks = monthlyCounts.some(function(c) { return c > 0; });
-
-            container.innerHTML = stats.map(function(p) {
-                var rowClass = '';
-                var arrow = '';
-                if (hasTasks && p.monthlyCount > 0) {
-                    if (p.monthlyCount === maxCount && maxCount > 0) {
-                        rowClass = 'highlight-max';
-                        arrow = ' 🔺';
-                    } else if (p.monthlyCount === minCount && minCount > 0 && minCount < maxCount) {
-                        rowClass = 'highlight-min';
-                        arrow = ' 🔻';
-                    }
-                }
-                return '<div class="photographer-stats-row ' + rowClass +
-                    '"><div class="name">' + p.name + arrow + '</div><div>' + p.monthlyCount +
-                    '</div></div>';
-            }).join('');
-
-            var tasksForTotal = data.tasks;
-            if (currentUser && currentUser.type === 'photographer') {
-                tasksForTotal = tasksForTotal.filter(function(t) { return t.photographerId === currentUser.id; });
-            }
-            var badge = document.getElementById('totalAllTasksBadge');
-            if (badge) badge.textContent = tasksForTotal.length;
-        }
-
-        function renderTasks() {
-            document.getElementById('taskCount').textContent = data.tasks.length;
-            populatePhotographerCheckboxes();
-        }
-
-        function renderPhotographers() {
-            var tbody = document.getElementById('photographerTableBody');
-            var countEl = document.getElementById('photographerCount');
-            if (!tbody) return;
-
-            if (data.photographers.length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="6" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا يوجد مصورون</td></tr>';
-                if (countEl) countEl.textContent = '0';
-                return;
-            }
-
-            tbody.innerHTML = data.photographers.map(function(p, idx) {
-                return '<tr><td>' + (idx + 1) + '</td><td><strong>' + (p.name || '') +
-                    '</strong></td><td>' + (p.role || '-') + '</td><td>' + cleanPass(p.password || '123') +
-                    '</td><td>' + (p.notes || '-') +
-                    '</td><td><button class="btn-icon edit" onclick="editPhotographer(' + p.id +
-                    ')" title="تعديل"><i class="fas fa-edit"></i></button> <button class="btn-icon delete" onclick="deletePhotographer(' +
-                    p.id + ')" title="حذف"><i class="fas fa-trash"></i></button></td></tr>';
-            }).join('');
-            if (countEl) countEl.textContent = data.photographers.length;
-        }
-
-        function renderUsers() {
-            var tbody = document.getElementById('userTableBody');
-            if (!tbody) return;
-            document.getElementById('userCount').textContent = data.users.length;
-
-            if (data.users.length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="5" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا يوجد مستخدمون</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = data.users.map(function(u, idx) {
-                return '<tr><td>' + (idx + 1) + '</td><td><strong>' + u.username +
-                    '</strong></td><td>' + cleanPass(u.password || '-') + '</td><td>' + (u.role === 'admin' ? 'مدير' :
-                        'مستخدم') +
-                    '</td><td><button class="btn-icon edit" onclick="editUser(' + u.id +
-                    ')" title="تعديل"><i class="fas fa-edit"></i></button> ' + (u.username !== 'admin' ?
-                        '<button class="btn-icon delete" onclick="deleteUser(' + u.id +
-                        ')" title="حذف"><i class="fas fa-trash"></i></button>' : '') + '</td></tr>';
-            }).join('');
-        }
-
-        function renderLogs() {
-            var tbody = document.getElementById('logsTableBody');
-            if (!tbody) return;
-
-            var search = (document.getElementById('logSearch') ? document.getElementById('logSearch').value : '').toLowerCase()
-                .trim();
-            var dateFilter = document.getElementById('logFilterDate') ? document.getElementById('logFilterDate').value :
-            'all';
-            var monthFilter = document.getElementById('logFilterMonth') ? document.getElementById('logFilterMonth').value :
-                'all';
-            var yearFilter = document.getElementById('logFilterYear') ? document.getElementById('logFilterYear').value :
-            'all';
-            var photographerFilter = document.getElementById('logFilterPhotographer') ? document.getElementById(
-                'logFilterPhotographer').value : 'all';
-
-            var filtered = data.tasks.filter(function(t) {
-                if (currentUser && currentUser.type === 'photographer' && t.photographerId !== currentUser.id)
-                    return false;
-                var matchSearch = search === '' ||
-                    t.name.toLowerCase().indexOf(search) !== -1 ||
-                    t.photographerName.toLowerCase().indexOf(search) !== -1 ||
-                    t.location.toLowerCase().indexOf(search) !== -1;
-                
-                var cleanD = cleanDateStr(t.date);
-                var matchDate = dateFilter === 'all' || cleanD === dateFilter;
-                var matchMonth = monthFilter === 'all' || new Date(cleanD).getMonth() + 1 === parseInt(monthFilter);
-                var matchYear = yearFilter === 'all' || new Date(cleanD).getFullYear().toString() === yearFilter;
-                var matchPhotographer = photographerFilter === 'all' || t.photographerId === parseInt(photographerFilter);
-                return matchSearch && matchDate && matchMonth && matchYear && matchPhotographer;
-            });
-
-            document.getElementById('logCount').textContent = filtered.length;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="6" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا توجد سجلات</td></tr>';
-                return;
-            }
-
-            filtered.sort(function(a, b) { return b.id - a.id; });
-            var isAdmin = currentUser && currentUser.role === 'admin';
-
-            tbody.innerHTML = filtered.map(function(t, idx) {
-                return '<tr><td>' + (idx + 1) + '</td><td><strong>' + t.name +
-                    '</strong></td><td>' + t.photographerName + '</td><td>' + cleanDateStr(t.date) + '</td><td>' + (t
-                    .location || '-') +
-                    '</td><td>' + (isAdmin ?
-                        '<button class="btn-icon edit" onclick="editTask(' + t.id +
-                        ')" title="تعديل"><i class="fas fa-edit"></i></button> <button class="btn-icon delete" onclick="deleteTask(' +
-                        t.id + ')" title="حذف"><i class="fas fa-trash"></i></button>' :
-                        '-') + '</td></tr>';
-            }).join('');
-        }
-
-        function renderTopPhotographers() {
-            var container = document.getElementById('topPhotographersBar');
-            if (!container) return;
-            var usage = {};
-            data.tasks.forEach(function(t) { usage[t.photographerId] = (usage[t.photographerId] || 0) + 1; });
-            var entries = Object.entries(usage).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 3);
-
-            if (entries.length === 0) {
-                container.innerHTML =
-                    '<div style="text-align:center;color:#888;font-size:var(--fs-xs);grid-column:1/-1;">لا توجد بيانات كافية</div>';
-                return;
-            }
-
-            var medals = ['🥇', '🥈', '🥉'];
-            var classes = ['gold', 'silver', 'bronze'];
-
-            container.innerHTML = entries.map(function(item, idx) {
-                var id = parseInt(item[0]);
-                var count = item[1];
-                var ph = data.photographers.find(function(p) { return p.id === id; });
-                return '<div class="top-photographer-item ' + (classes[idx] || '') +
-                    '"><div class="rank">' + (medals[idx] || '#' + (idx + 1)) +
-                    '</div><div class="name">' + (ph ? ph.name : 'غير معروف') +
-                    '</div><div class="count">' + count + ' واجب</div></div>';
-            }).join('');
-        }
-
-        function renderRecentTasks() {
-            var tbody = document.getElementById('recentTasks');
-            if (!tbody) return;
-            var today = new Date().toISOString().slice(0, 10);
-
-            var tasks = data.tasks.filter(function(t) { return cleanDateStr(t.date) === today; });
-            if (currentUser && currentUser.type === 'photographer') {
-                tasks = tasks.filter(function(t) { return t.photographerId === currentUser.id; });
-            }
-            var recent = tasks.slice().sort(function(a, b) { return b.id - a.id; });
-
-            if (recent.length === 0) {
-                tbody.innerHTML =
-                    '<tr><td colspan="4" style="text-align:center;color:#888;font-size:var(--fs-xs);">لا توجد واجبات لهذا اليوم</td></tr>';
-                return;
-            }
-            tbody.innerHTML = recent.map(function(t) {
-                return '<tr><td>' + t.name + '</td><td>' + t.photographerName + '</td><td>' + cleanDateStr(t.date) +
-                    '</td><td>' + (t.location || '-') + '</td></tr>';
-            }).join('');
-        }
-
-        function updateBadges() {
-            document.getElementById('taskCount').textContent = data.tasks.length;
-        }
-
-        function populateDropdowns() {
-            var dateSelect = document.getElementById('logFilterDate');
-            if (dateSelect) {
-                var currentVal = dateSelect.value;
-                var dates = new Set();
-                data.tasks.forEach(function(t) { if(t.date) dates.add(cleanDateStr(t.date)); });
-                dateSelect.innerHTML = '<option value="all">كل الأيام</option>';
-                var sortedDates = Array.from(dates).sort().reverse();
-                sortedDates.forEach(function(d) { dateSelect.innerHTML += '<option value="' + d + '">' + d + '</option>'; });
-                if (currentVal) dateSelect.value = currentVal;
-            }
-
-            var phSelect = document.getElementById('logFilterPhotographer');
-            if (phSelect) {
-                var currentVal = phSelect.value;
-                phSelect.innerHTML = '<option value="all">كل المصورين</option>';
-                data.photographers.forEach(function(p) { phSelect.innerHTML += '<option value="' + p.id + '">' + p.name +
-                        '</option>'; });
-                if (currentVal) phSelect.value = currentVal;
-            }
-
-            var yearSelect = document.getElementById('logFilterYear');
-            if (yearSelect) {
-                var currentVal = yearSelect.value;
-                var years = new Set();
-                data.tasks.forEach(function(t) { if (t.date) years.add(new Date(cleanDateStr(t.date)).getFullYear()); });
-                yearSelect.innerHTML = '<option value="all">كل السنوات</option>';
-                var sortedYears = Array.from(years).sort().reverse();
-                sortedYears.forEach(function(y) { yearSelect.innerHTML += '<option value="' + y + '">' + y + '</option>'; });
-                if (currentVal) yearSelect.value = currentVal;
-            }
-        }
-
-        // ============================================================
-        // CRUD OPERATIONS
-        // ============================================================
-        function editPhotographer(id) {
-            var p = data.photographers.find(function(ph) { return ph.id === id; });
-            if (!p) return;
-            editTarget = id;
-            openModal('تعديل المصور',
-                '<div class="form-row"><div class="form-group"><label>الاسم <span class="required">*</span></label><input type="text" id="modalPhotoName" value="' +
-                p.name +
-                '"></div><div class="form-group"><label>الصفة</label><select id="modalPhotoRole">' +
-                data.roleList.map(function(r) { return '<option value="' + r + '" ' + (r === p.role ? 'selected' :
-                        '') + '>' + r + '</option>'; }).join('') +
-                '</select></div></div><div class="form-row"><div class="form-group"><label>كلمة السر</label><input type="text" id="modalPhotoPassword" value="' +
-                cleanPass(p.password || '123') +
-                '"></div><div class="form-group"><label>ملاحظات</label><input type="text" id="modalPhotoNotes" value="' +
-                (p.notes || '') + '"></div></div>',
-                function() {
-                    var name = document.getElementById('modalPhotoName').value.trim();
-                    if (!name) { showToast('الرجاء إدخال الاسم'); return; }
-                    var idx = data.photographers.findIndex(function(ph) { return ph.id === id; });
-                    if (idx === -1) return;
-                    data.photographers[idx].name = name;
-                    data.photographers[idx].role = document.getElementById('modalPhotoRole').value;
-                    data.photographers[idx].password = document.getElementById('modalPhotoPassword').value.trim() || '123';
-                    data.photographers[idx].notes = document.getElementById('modalPhotoNotes').value.trim();
-                    saveData();
-                    closeModal();
-                    showToast('تم التعديل بنجاح');
-                    populateLoginSelect();
-                    
-                    const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-                    if (url) {
-                        syncToGoogleSheets_JSONP().catch(() => {});
-                    }
-                });
-        }
-
-        function deletePhotographer(id) {
-            if (!confirm('هل أنت متأكد من حذف هذا المصور؟')) return;
-            data.photographers = data.photographers.filter(function(p) { return p.id !== id; });
-            saveData();
-            showToast('تم الحذف بنجاح');
-            populateLoginSelect();
-            renderSettingsPhotographers();
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
-        }
-
-        function editTask(id) {
-            if (currentUser && currentUser.role !== 'admin') {
-                showToast('غير مصرح لك بالتعديل');
-                return;
-            }
-
-            var t = data.tasks.find(function(task) { return task.id === id; });
-            if (!t) return;
-            editTarget = id;
-            openModal('تعديل الواجب',
-                '<div class="form-group"><label>اسم الواجب <span class="required">*</span></label><input type="text" id="modalTaskName" value="' +
-                t.name +
-                '"></div><div class="form-group"><label>المصور <span class="required">*</span></label><select id="modalTaskPhotographer">' +
-                data.photographers.map(function(p) { return '<option value="' + p.id + '" ' + (p.id === t
-                        .photographerId ? 'selected' : '') + '>' + p.name + '</option>'; }).join('') +
-                '</select></div><div class="form-row"><div class="form-group"><label>تاريخ الواجب <span class="required">*</span></label><input type="date" id="modalTaskDate" value="' +
-                cleanDateStr(t.date) +
-                '"></div><div class="form-group"><label>الموقع</label><input type="text" id="modalTaskLocation" value="' +
-                (t.location || '') + '"></div></div>',
-                function() {
-                    var name = document.getElementById('modalTaskName').value.trim();
-                    var phId = parseInt(document.getElementById('modalTaskPhotographer').value);
-                    var date = cleanDateStr(document.getElementById('modalTaskDate').value);
-                    var location = document.getElementById('modalTaskLocation').value.trim();
-
-                    if (!name || !phId || !date) { showToast('الرجاء ملء جميع الحقول المطلوبة'); return; }
-
-                    var ph = data.photographers.find(function(p) { return p.id === phId; });
-                    var idx = data.tasks.findIndex(function(task) { return task.id === id; });
-                    if (idx === -1) return;
-                    data.tasks[idx].name = name;
-                    data.tasks[idx].photographerId = phId;
-                    data.tasks[idx].photographerName = ph ? ph.name : 'غير معروف';
-                    data.tasks[idx].date = date;
-                    data.tasks[idx].location = location || '';
-                    saveData();
-                    closeModal();
-                    showToast('تم التعديل بنجاح');
-                    
-                    const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-                    if (url) {
-                        syncToGoogleSheets_JSONP().catch(() => {});
-                    }
-                });
-        }
-
-        function deleteTask(id) {
-            if (currentUser && currentUser.role !== 'admin') { showToast('غير مصرح لك بالحذف'); return; }
-            if (!confirm('هل أنت متأكد من حذف هذا الواجب؟')) return;
-            data.tasks = data.tasks.filter(function(t) { return t.id !== id; });
-            saveData();
-            showToast('تم الحذف بنجاح');
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
+            showToast('تمت إضافة الواجب بنجاح');
         }
 
         function addPhotographer(e) {
             e.preventDefault();
-            var name = document.getElementById('photoName').value.trim();
-            if (!name) { showToast('الرجاء إدخال اسم المصور'); return; }
-
-            if (data.photographers.find(function(p) { return p.name === name; })) {
-                showToast('هذا المصور موجود بالفعل');
-                return;
-            }
-
-            data.photographers.push({
-                id: nextIds.photographer++,
-                name: name,
-                role: document.getElementById('photoRole').value,
-                password: document.getElementById('photoPassword').value.trim() || '123',
-                notes: document.getElementById('photoNotes').value.trim()
-            });
-            saveData();
+            const name = document.getElementById('photoName').value.trim();
+            const password = document.getElementById('photoPassword').value.trim();
+            if (!name) return;
+            data.photographers.push({ id: nextIds.photographer++, name, role: 'مصور فوتوغرافي', password, notes: '' });
+            saveDataAndSync();
             document.getElementById('addPhotographerForm').reset();
-            showToast('تمت إضافة المصور بنجاح');
-            populateLoginSelect();
-            renderSettingsPhotographers();
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
+            showToast('تمت إضافة المصور');
         }
 
-        function addUser(e) {
-            e.preventDefault();
-            var username = document.getElementById('userName').value.trim();
-            var password = document.getElementById('userPassword').value.trim();
-            var role = document.getElementById('userRole').value;
-            if (!username || !password) { showToast('الرجاء إدخال اسم المستخدم وكلمة السر'); return; }
-
-            if (data.users.find(function(u) { return u.username === username; })) {
-                showToast('اسم المستخدم موجود بالفعل');
-                return;
-            }
-
-            data.users.push({ id: nextIds.user++, username: username, password: password, role: role });
-            saveData();
-            document.getElementById('addUserForm').reset();
-            showToast('تمت إضافة المستخدم بنجاح');
-            populateLoginSelect();
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
+        function clearAllTasks() {
+            if (!confirm('هل أنت متأكد من مسح جميع الواجبات؟')) return;
+            data.tasks = [];
+            saveDataAndSync();
+            showToast('تم مسح الواجبات');
         }
 
-        function editUser(id) {
-            var u = data.users.find(function(user) { return user.id === id; });
-            if (!u) return;
-            editTarget = id;
-            openModal('تعديل المستخدم',
-                '<div class="form-group"><label>اسم المستخدم <span class="required">*</span></label><input type="text" id="modalUserName" value="' +
-                u.username +
-                '"></div><div class="form-group"><label>كلمة السر <span class="required">*</span></label><input type="text" id="modalUserPassword" value="' +
-                cleanPass(u.password) +
-                '"></div><div class="form-group"><label>الصلاحية</label><select id="modalUserRole"><option value="admin" ' +
-                (u.role === 'admin' ? 'selected' : '') +
-                '>مدير (صلاحية كاملة)</option><option value="user" ' + (u.role === 'user' ? 'selected' : '') +
-                '>مستخدم (مشاهدة فقط)</option></select></div>',
-                function() {
-                    var username = document.getElementById('modalUserName').value.trim();
-                    var password = document.getElementById('modalUserPassword').value.trim();
-                    var role = document.getElementById('modalUserRole').value;
-                    if (!username || !password) { showToast('الرجاء ملء جميع الحقول'); return; }
-                    var idx = data.users.findIndex(function(user) { return user.id === id; });
-                    if (idx === -1) return;
-                    data.users[idx].username = username;
-                    data.users[idx].password = password;
-                    data.users[idx].role = role;
-                    saveData();
-                    closeModal();
-                    showToast('تم التعديل بنجاح');
-                    populateLoginSelect();
-                    
-                    const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-                    if (url) {
-                        syncToGoogleSheets_JSONP().catch(() => {});
-                    }
-                });
-        }
-
-        function deleteUser(id) {
-            var user = data.users.find(function(u) { return u.id === id; });
-            if (user && user.username === 'admin') { showToast('لا يمكن حذف المستخدم admin'); return; }
-            if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
-            data.users = data.users.filter(function(u) { return u.id !== id; });
-            saveData();
-            showToast('تم الحذف بنجاح');
-            populateLoginSelect();
-            
-            const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-            if (url) {
-                syncToGoogleSheets_JSONP().catch(() => {});
-            }
-        }
-
-        function applyLogFilters() { renderLogs(); }
-
-        function clearLogFilters() {
-            document.getElementById('logSearch').value = '';
-            document.getElementById('logFilterDate').value = 'all';
-            document.getElementById('logFilterMonth').value = 'all';
-            document.getElementById('logFilterYear').value = 'all';
-            document.getElementById('logFilterPhotographer').value = 'all';
-            populateDropdowns();
-            renderLogs();
-            showToast('تم مسح التصفية');
-        }
-
-        // ============================================================
-        // ROLE MODIFIERS
-        // ============================================================
-        function editRoleList() {
-            var newList = prompt('قائمة الصفات (افصل بينها بفاصلة):', data.roleList.join('، '));
-            if (newList !== null) {
-                data.roleList = newList.split(/[،,]\s*/).filter(function(s) { return s.trim(); });
-                saveData();
-                populateShiftRoleLists();
-                showToast('تم تحديث القائمة');
-                
-                const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-                if (url) {
-                    syncToGoogleSheets_JSONP().catch(() => {});
-                }
-            }
-        }
-
-        function addRoleItem() {
-            var newItem = prompt('أدخل صفة جديدة:');
-            if (newItem && newItem.trim()) {
-                data.roleList.push(newItem.trim());
-                saveData();
-                populateShiftRoleLists();
-                showToast('تمت الإضافة');
-                
-                const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-                if (url) {
-                    syncToGoogleSheets_JSONP().catch(() => {});
-                }
-            }
-        }
-
-        function deleteRoleItem() {
-            var currentVal = document.getElementById('photoRole').value;
-            if (currentVal && confirm('هل تريد حذف "' + currentVal + '"؟')) {
-                data.roleList = data.roleList.filter(function(s) { return s !== currentVal; });
-                saveData();
-                populateShiftRoleLists();
-                showToast('تم الحذف');
-                
-                const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
-                if (url) {
-                    syncToGoogleSheets_JSONP().catch(() => {});
-                }
-            }
-        }
-
-        // ============================================================
-        // SETTINGS & APPEARANCE
-        // ============================================================
-        function changePrimaryColor(color) { document.documentElement.style.setProperty('--primary', color); }
-
-        function changeAccentColor(color) { document.documentElement.style.setProperty('--accent', color); }
-
-        function resetColors() {
-            document.documentElement.style.setProperty('--primary', '#0d1b2a');
-            document.documentElement.style.setProperty('--accent', '#f4a261');
-            document.getElementById('settingsPrimaryColor').value = '#0d1b2a';
-            document.getElementById('settingsAccentColor').value = '#f4a261';
-            showToast('تم استعادة الألوان الافتراضية');
-        }
-
-        // ============================================================
-        // REPORTS
-        // ============================================================
-        function generateReportHTML(title, tasks, showPhotographer, photographerName) {
-            showPhotographer = (typeof showPhotographer === 'undefined') ? true : showPhotographer;
-            photographerName = photographerName || 'جميع المصورين';
-            tasks = tasks.slice().sort(function(a, b) { return a.date.localeCompare(b.date); });
-
-            var html = '<div style="font-family:Arial,sans-serif;direction:rtl;padding:20px;font-size:14px;">' +
-                '<h2 style="color:#0d1b2a;border-bottom:2px solid #f4a261;padding-bottom:8px;">' + title + '</h2>' +
-                (showPhotographer ? '<p><strong>المصور:</strong> ' + photographerName + '</p>' : '') +
-                '<p><strong>التاريخ:</strong> ' + new Date().toLocaleDateString('ar-EG') + '</p>' +
-                '<p><strong>إجمالي الواجبات:</strong> ' + tasks.length + '</p>' +
-                '<table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;">' +
-                '<thead><tr style="background:#0d1b2a;color:#fff;">' +
-                '<th style="padding:8px;text-align:right;">#</th>' +
-                '<th style="padding:8px;text-align:right;">اسم الواجب</th>' +
-                '<th style="padding:8px;text-align:right;">تاريخ الواجب</th>' +
-                '<th style="padding:8px;text-align:right;">موقع الواجب</th>' +
-                (showPhotographer ? '<th style="padding:8px;text-align:right;">اسم المصور</th>' : '') +
-                '</tr></thead><tbody>';
-
-            tasks.forEach(function(t, idx) {
-                var phCellContent = '';
-                if (showPhotographer) {
-                    if (t._phList && t._phList.length > 0) {
-                        phCellContent = t._phList.map(function(name) {
-                            return '<span style="display:inline-block; white-space:nowrap; unicode-bidi:isolate;">' + name + '</span>';
-                        }).join(' <span style="display:inline-block; color:#e76f51; font-weight:bold; padding:0 3px;">،</span> ');
-                    } else {
-                        phCellContent = '<span style="display:inline-block; white-space:nowrap; unicode-bidi:isolate;">' + t.photographerName + '</span>';
-                    }
-                }
-
-                html += '<tr style="border-bottom:1px solid #eef1f5;">' +
-                    '<td style="padding:6px 8px;">' + (idx + 1) + '</td>' +
-                    '<td style="padding:6px 8px;">' + t.name + '</td>' +
-                    '<td style="padding:6px 8px;">' + cleanDateStr(t.date) + '</td>' +
-                    '<td style="padding:6px 8px;">' + (t.location || '-') + '</td>' +
-                    (showPhotographer ? '<td style="padding:6px 8px;">' + phCellContent + '</td>' : '') +
-                    '</tr>';
-            });
-
-            html += '</tbody></table></div>';
-            return html;
-        }
-
-        function confirmExport(message) {
-            return new Promise(function(resolve) {
-                if (confirm(message)) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            });
-        }
-
-        async function exportPhotographerStatsReport() {
-            if (currentUser && currentUser.role !== 'admin') {
-                showToast('غير مصرح لك بطباعة هذا التقرير');
-                return;
-            }
-            var confirmed = await confirmExport('هل أنت متأكد من تصدير تقرير الإحصائية الشهرية للمصورين؟');
-            if (!confirmed) return;
-
-            var now = new Date();
-            var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-            var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
-
-            var photographers = data.photographers.slice().sort(function(a, b) { return a.name.localeCompare(b.name, 'ar'); });
-
-            var html = '<div style="font-family:Arial,sans-serif;direction:rtl;padding:20px;font-size:14px;">' +
-                '<h2 style="color:#0d1b2a;border-bottom:2px solid #f4a261;padding-bottom:8px;">تقرير الإحصائية الشهرية للمصورين</h2>' +
-                '<p><strong>التاريخ:</strong> ' + new Date().toLocaleDateString('ar-EG') + '</p>' +
-                '<table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;">' +
-                '<thead><tr style="background:#0d1b2a;color:#fff;">' +
-                '<th style="padding:8px;text-align:right;">#</th>' +
-                '<th style="padding:8px;text-align:right;">اسم المصور</th>' +
-                '<th style="padding:8px;text-align:right;">الإحصائية الشهرية</th>' +
-                '</tr></thead><tbody>';
-
-            photographers.forEach(function(p, idx) {
-                var monthlyCount = data.tasks.filter(function(t) { 
-                    var d = cleanDateStr(t.date);
-                    return t.photographerId === p.id && d >= monthStart && d <= monthEnd; 
-                }).length;
-                html += '<tr style="border-bottom:1px solid #eef1f5;">' +
-                    '<td style="padding:6px 8px;">' + (idx + 1) + '</td>' +
-                    '<td style="padding:6px 8px;"><strong style="display:inline-block; white-space:nowrap; unicode-bidi:isolate;">' + p.name + '</strong></td>' +
-                    '<td style="padding:6px 8px;">' + monthlyCount + '</td>' +
-                    '</tr>';
-            });
-
-            html += '</tbody></table>' +
-                '<div style="margin-top:20px; padding:12px; background:#f0f2f5; border-radius:6px; font-weight:bold; font-size:14px; color:#0d1b2a; display:flex; justify-content:space-between;">' +
-                '<span>إجمالي عدد الواجبات الكلي:</span>' +
-                '<span>' + data.tasks.length + ' واجب</span>' +
-                '</div>' +
-                '</div>';
-
-            var wrapper = document.createElement('div');
-            wrapper.innerHTML = html;
-            document.body.appendChild(wrapper);
-            html2pdf().from(wrapper).set({
-                margin: 0.5,
-                filename: 'تقرير_الإحصائية_الشهرية_' + now.getFullYear() + '_' + (now.getMonth() + 1) + '.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            }).save().then(function() {
-                document.body.removeChild(wrapper);
-                showToast('✅ تم تصدير تقرير الإحصائية');
-            });
-        }
-
-        async function exportMonthlyReport() {
-            var confirmed = await confirmExport('هل أنت متأكد من تصدير التقرير الشهري؟');
-            if (!confirmed) return;
-
-            var now = new Date();
-            var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-            var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
-
-            var tasks = data.tasks.filter(function(t) { 
-                var d = cleanDateStr(t.date);
-                return d >= monthStart && d <= monthEnd; 
-            });
-            var title = 'التقرير الشهري لواجبات المصورين';
-            var showPhotographer = true;
-            var photographerName = 'جميع المصورين';
-
-            if (currentUser && currentUser.type === 'photographer') {
-                tasks = tasks.filter(function(t) { return t.photographerId === currentUser.id; });
-                title = 'التقرير الشهري لواجبات المصور: ' + currentUser.name;
-                showPhotographer = false;
-                photographerName = currentUser.name;
-            } else {
-                tasks = groupTasksForReport(tasks);
-            }
-
-            var wrapper = document.createElement('div');
-            wrapper.innerHTML = generateReportHTML(title, tasks, showPhotographer, photographerName);
-            document.body.appendChild(wrapper);
-            html2pdf().from(wrapper).set({
-                margin: 0.5,
-                filename: 'التقرير_الشهري_' + now.getFullYear() + '_' + (now.getMonth() + 1) + '.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            }).save().then(function() {
-                document.body.removeChild(wrapper);
-                showToast('تم تصدير التقرير الشهري');
-            });
-        }
-
-        async function exportLogsReport() {
-            var confirmed = await confirmExport('هل أنت متأكد من تصدير تقرير سجل الواجبات؟');
-            if (!confirmed) return;
-
-            var filtered = data.tasks.slice();
-            var showPhotographer = !(currentUser && currentUser.type === 'photographer');
-            if (currentUser && currentUser.type === 'photographer') {
-                filtered = filtered.filter(function(t) { return t.photographerId === currentUser.id; });
-            } else {
-                filtered = groupTasksForReport(filtered);
-            }
-            var wrapper = document.createElement('div');
-            wrapper.innerHTML = generateReportHTML('تقرير سجل الواجبات', filtered, showPhotographer);
-            document.body.appendChild(wrapper);
-            html2pdf().from(wrapper).set({
-                margin: 0.5,
-                filename: 'سجل_الواجبات_' + new Date().toISOString().slice(0, 10) + '.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            }).save().then(function() {
-                document.body.removeChild(wrapper);
-                showToast('تم تصدير سجل الواجبات');
-            });
-        }
-
-        // ============================================================
-        // NAVIGATION & MODALS & TOAST
-        // ============================================================
         function navigateTo(page) {
-            document.querySelectorAll('.btn-side').forEach(function(b) { b.classList.remove('active'); });
-            document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-
-            var btn = document.querySelector('.btn-side[data-page="' + page + '"]');
+            document.querySelectorAll('.btn-side').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const btn = document.querySelector(`.btn-side[data-page="${page}"]`);
             if (btn) btn.classList.add('active');
-
-            var pg = document.getElementById('page-' + page);
+            const pg = document.getElementById('page-' + page);
             if (pg) pg.classList.add('active');
-            else document.getElementById('page-dashboard').classList.add('active');
-
-            if (page === 'dashboard') { renderStats(); renderRecentTasks(); renderPhotographerStats(); }
-            if (page === 'tasks') renderTasks();
-            if (page === 'logs') { renderLogs(); renderTopPhotographers(); }
-            if (page === 'photographers') renderPhotographers();
-            if (page === 'users') renderUsers();
-            if (page === 'settings') { renderSettingsPhotographers(); }
-
-            var pCont = document.getElementById('pagesContainer');
-            if (pCont) pCont.scrollTop = 0;
         }
 
-        document.querySelectorAll('.btn-side').forEach(function(btn) {
-            btn.onclick = function() {
-                var page = this.dataset.page;
-                if (currentUser && currentUser.type === 'photographer') {
-                    if (['photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) {
-                        showToast('غير مصرح لك بالوصول لهذه الصفحة');
-                        return;
-                    }
-                }
-                if (currentUser && currentUser.role === 'user') {
-                    if (['tasks', 'photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) {
-                        showToast('غير مصرح لك بالوصول لهذه الصفحة');
-                        return;
-                    }
-                }
-                navigateTo(page);
-            };
-        });
-
-        function openModal(title, bodyHtml, onConfirm) {
-            document.getElementById('modalTitle').innerHTML = title;
-            document.getElementById('modalBody').innerHTML = bodyHtml;
-            document.getElementById('modalOverlay').classList.add('show');
-            modalCallback = onConfirm;
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('show');
-            modalCallback = null;
-            editTarget = null;
-        }
-
-        function modalConfirm() {
-            if (modalCallback) modalCallback();
-        }
-
-        document.getElementById('modalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+        document.querySelectorAll('.btn-side').forEach(btn => {
+            btn.onclick = () => navigateTo(btn.dataset.page);
         });
 
         function showToast(msg) {
-            var t = document.getElementById('toastMsg');
-            if (!t) return;
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(function() {
-                t.classList.remove('show');
-            }, 3000);
+            const t = document.getElementById('toastMsg');
+            t.textContent = msg; t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // ============================================================
-        // INITIALIZATION (مع جلب البيانات التلقائي الآمن للمتصفحات الجديدة)
-        // ============================================================
-        window.addEventListener('DOMContentLoaded', function() {
-            const savedUrl = localStorage.getItem('photo_webapp_url') || DEFAULT_WEBAPP_URL;
-            if (savedUrl) {
-                document.getElementById('webAppUrlInput').value = savedUrl;
-                GAS_CONFIG.webAppUrl = savedUrl;
-            }
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clockTime').textContent = now.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('clockDate').textContent = now.toLocaleDateString('ar-EG');
+        }
 
+        window.addEventListener('DOMContentLoaded', () => {
             loadData();
-            loadGDriveConfig();
             updateClock();
             setInterval(updateClock, 1000);
-            populateLoginSelect();
-            checkAutoLogin();
             document.getElementById('taskDate').value = new Date().toISOString().slice(0, 10);
-            updateSyncStatus('unsynced', 'جاري جلب البيانات...');
-
-            // جلب البيانات صامتاً في الخلفية عند فتح التطبيق لضمان تحديث القائمة للمتصفحات الجديدة
             if (GAS_CONFIG.webAppUrl) {
-                syncFromGoogleSheets_JSONP(true).then(() => {
-                    gdriveConfig.authenticated = true;
-                    saveGDriveConfig();
-                }).catch(() => {
-                    updateSyncStatus('unsynced', 'غير متزامن');
-                });
-            }
-
-            renderSettingsPhotographers();
-
-            if (window.navigator.userAgent.includes('iPhone') || window.navigator.userAgent.includes('iPad')) {
-                document.body.style.height = window.innerHeight + 'px';
-            }
-        });
-
-        window.addEventListener('resize', function() {
-            if (window.navigator.userAgent.includes('iPhone') || window.navigator.userAgent.includes('iPad')) {
-                document.body.style.height = window.innerHeight + 'px';
+                document.getElementById('webAppUrlInput').value = GAS_CONFIG.webAppUrl;
+                loadFromSheet();
             }
         });
     </script>
