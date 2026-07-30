@@ -97,8 +97,8 @@
 <body>
 
     <!-- Loading Overlay -->
-    <div id="loadingOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;justify-content:center;align-items:center;z-index:999999;color:#fff;font-size:1.2rem;gap:10px;">
-        <i class="fas fa-spinner fa-spin fa-2x"></i> <span>جاري المعالجة...</span>
+    <div id="loadingOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:999999;color:#fff;font-size:1.2rem;gap:12px;">
+        <i class="fas fa-spinner fa-spin fa-2x"></i> <span id="loadingStatus">جاري المعالجة...</span>
     </div>
 
     <div id="loginScreen">
@@ -141,7 +141,7 @@
         <button class="btn-side" data-page="users"><i class="fas fa-users-cog"></i> <span>المستخدمين</span></button>
         <button class="btn-side" data-page="sync"><i class="fas fa-cloud-upload-alt"></i> <span>المزامنة</span></button>
         <button class="btn-side" data-page="settings"><i class="fas fa-cog"></i> <span>الإعدادات</span></button>
-        <div class="sidebar-footer"><i class="fas fa-camera"></i> V3.3</div>
+        <div class="sidebar-footer"><i class="fas fa-camera"></i> V4.0</div>
     </nav>
 
     <div class="main-content">
@@ -240,7 +240,7 @@
                 <div class="page-title"><i class="fas fa-cloud-upload-alt"></i> المزامنة السحابية</div>
                 <div class="card">
                     <div class="card-header"><i class="fas fa-link"></i> إعدادات الاتصال</div>
-                    <div class="form-group"><label>رابط Web App</label><input type="text" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/AKfycbw9roU1jjeknRngbExdFp8mQkKeHYg-hcPLQv805mkcr67H3KyTxPju0y6pIfx_IInDnQ/exec"></div>
+                    <div class="form-group"><label>رابط Web App</label><input type="text" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/.../exec"></div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn btn-primary" onclick="saveWebAppUrl()"><i class="fas fa-save"></i> حفظ</button>
                         <button class="btn btn-info" onclick="testConnection()"><i class="fas fa-plug"></i> اختبار</button>
@@ -269,7 +269,7 @@
 
         const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbx3F-3W8AH7-tBvAJ7WhpxBlzbdYfHe1B7YWc10bqFYvoIzHpLWSB_OTeL7otCTjkIc7g/exec';
         const GAS_CONFIG = { webAppUrl: localStorage.getItem('photo_webapp_url') || DEFAULT_WEBAPP_URL };
-        const STORE_KEY = 'photo_warehouse_tasks_v14';
+        const STORE_KEY = 'photo_warehouse_tasks_v15';
 
         let data = { tasks: [], photographers: [], users: [], roleList: ['مصور فوتوغرافي', 'مصور فيديو', 'مونتير', 'مساعد إضاءة'] };
         let nextIds = { task: 1, photographer: 1, user: 1 };
@@ -280,6 +280,15 @@
         function showLoading(show) {
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function showLoginLoading(show, msg = 'جاري المعالجة...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const statusEl = document.getElementById('loadingStatus');
+            if (overlay && statusEl) {
+                statusEl.textContent = msg;
+                overlay.style.display = show ? 'flex' : 'none';
+            }
         }
 
         function saveNextIds() {
@@ -304,6 +313,20 @@
         }
 
         function cleanPass(p) { return !p ? '123' : String(p).replace(/^'/, '').trim(); }
+
+        function formatPassForSheet(p) {
+            var cp = cleanPass(p);
+            return /^\d+$/.test(cp) ? "'" + cp : cp;
+        }
+
+        function getClientId() {
+            let clientId = localStorage.getItem('photo_client_id');
+            if (!clientId) {
+                clientId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                localStorage.setItem('photo_client_id', clientId);
+            }
+            return clientId;
+        }
 
         function callGAS_POST(action, payload = {}) {
             const url = document.getElementById('webAppUrlInput').value.trim() || GAS_CONFIG.webAppUrl;
@@ -332,24 +355,127 @@
             });
         }
 
-        function debouncedSync() {
-            if (syncTimeout) clearTimeout(syncTimeout);
-            document.getElementById('syncMiniDot').className = 'status-dot syncing';
-            document.getElementById('syncMiniText').textContent = 'جاري المزامنة...';
-            
-            syncTimeout = setTimeout(() => {
-                syncToGoogleSheets_POST();
-            }, 2000);
+        // 1. تعديل loadData
+        function loadData() {
+            loadNextIds();
+            try {
+                const stored = localStorage.getItem(STORE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    Object.assign(data, parsed);
+                }
+            } catch(e) {}
+
+            if (!data.users.find(u => u.username === 'admin')) {
+                data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
+                saveNextIds();
+            }
+
+            if (data.photographers.length === 0) {
+                data.photographers = [
+                    { id: nextIds.photographer++, name: 'مصور تجريبي 1', role: 'مصور فوتوغرافي', password: '123', notes: '' },
+                    { id: nextIds.photographer++, name: 'مصور تجريبي 2', role: 'مصور فيديو', password: '123', notes: '' }
+                ];
+                saveDataLocalOnly();
+            }
         }
 
+        // 3. دالة دمج البيانات (حل التعارضات)
+        function mergeData(serverData) {
+            if (serverData.photographers && serverData.photographers.length > 0) {
+                const localPhIds = new Set(data.photographers.map(p => p.id));
+                serverData.photographers.forEach(sp => {
+                    if (!localPhIds.has(sp.id)) {
+                        data.photographers.push(sp);
+                    }
+                });
+                data.photographers.forEach(lp => {
+                    const serverPh = serverData.photographers.find(sp => sp.id === lp.id);
+                    if (serverPh) { Object.assign(lp, serverPh); }
+                });
+            }
+            
+            if (serverData.users && serverData.users.length > 0) {
+                const localUserIds = new Set(data.users.map(u => u.id));
+                serverData.users.forEach(su => {
+                    if (!localUserIds.has(su.id)) {
+                        data.users.push(su);
+                    } else {
+                        const localUser = data.users.find(u => u.id === su.id);
+                        if (localUser) Object.assign(localUser, su);
+                    }
+                });
+            }
+            
+            if (serverData.tasks && serverData.tasks.length > 0) {
+                const localTaskIds = new Set(data.tasks.map(t => t.id));
+                serverData.tasks.forEach(st => {
+                    if (!localTaskIds.has(st.id)) {
+                        data.tasks.push(st);
+                    } else {
+                        const localTask = data.tasks.find(t => t.id === st.id);
+                        if (localTask) Object.assign(localTask, st);
+                    }
+                });
+            }
+        }
+
+        // 2. تعديل loadFromSheet
+        function loadFromSheet() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.onLine) {
+                    showToast('⚠️ لا يوجد اتصال بالإنترنت، استخدام البيانات المحلية');
+                    resolve(false);
+                    return;
+                }
+                
+                showLoading(true);
+                const statusEl = document.getElementById('loadingStatus');
+                if (statusEl) statusEl.textContent = 'جاري تحميل البيانات من السيرفر...';
+                
+                callGAS_POST('getData')
+                    .then(res => {
+                        showLoading(false);
+                        if (res && res.success && res.data) {
+                            const serverData = res.data;
+                            mergeData(serverData);
+                            
+                            data.tasks.forEach(t => { if (t.id >= nextIds.task) nextIds.task = t.id + 1; });
+                            data.photographers.forEach(p => { if (p.id >= nextIds.photographer) nextIds.photographer = p.id + 1; });
+                            data.users.forEach(u => { if (u.id >= nextIds.user) nextIds.user = u.id + 1; });
+                            
+                            saveDataLocalOnly();
+                            cacheTimestamp = res.data.updatedAt || new Date().toISOString();
+                            
+                            if (statusEl) statusEl.textContent = '✅ تم التحديث بنجاح';
+                            resolve(true);
+                        } else {
+                            reject(new Error('لا توجد بيانات من السيرفر'));
+                        }
+                    })
+                    .catch(err => {
+                        showLoading(false);
+                        if (statusEl) statusEl.textContent = '⚠️ فشل الاتصال، استخدام البيانات المحلية';
+                        showToast('⚠️ ' + err.message);
+                        reject(err);
+                    });
+            });
+        }
+
+        // 4. دالة المزامنة الذكية
         function syncToGoogleSheets_POST() {
             showLoading(true);
+            const statusEl = document.getElementById('loadingStatus');
+            if (statusEl) statusEl.textContent = 'جاري مزامنة التغييرات...';
+
             data.tasks.forEach(t => { if (t.date) t.date = cleanDateStr(t.date); });
+            
             const syncData = {
                 tasks: data.tasks,
                 photographers: data.photographers.map(p => Object.assign({}, p, { password: formatPassForSheet(p.password) })),
                 users: data.users.map(u => Object.assign({}, u, { password: formatPassForSheet(u.password) })),
-                updatedAt: new Date().toISOString()
+                updatedAt: new Date().toISOString(),
+                clientId: getClientId()
             };
 
             callGAS_POST('syncData', syncData)
@@ -359,8 +485,11 @@
                         document.getElementById('syncMiniDot').className = 'status-dot synced';
                         document.getElementById('syncMiniText').textContent = 'متزامن';
                         cacheTimestamp = res.updatedAt || new Date().toISOString();
+                        localStorage.setItem('photo_last_sync', Date.now().toString());
                         showToast('✅ تمت المزامنة بنجاح');
-                    } else { throw new Error(res.error || 'خطأ غير معروف'); }
+                    } else {
+                        throw new Error(res.error || 'خطأ غير معروف');
+                    }
                 })
                 .catch(err => {
                     showLoading(false);
@@ -372,34 +501,17 @@
 
         function manualSync() { syncToGoogleSheets_POST(); }
 
-        function loadFromSheet() {
-            showLoading(true);
-            showToast('جاري التحميل من الجدول...');
-            callGAS_POST('getData')
-                .then(res => {
-                    showLoading(false);
-                    if (res && res.success && res.data) {
-                        Object.assign(data, res.data);
-                        
-                        data.tasks.forEach(t => { if (t.id >= nextIds.task) nextIds.task = t.id + 1; });
-                        data.photographers.forEach(p => { if (p.id >= nextIds.photographer) nextIds.photographer = p.id + 1; });
-                        data.users.forEach(u => { if (u.id >= nextIds.user) nextIds.user = u.id + 1; });
-                        
-                        saveDataLocalOnly();
-                        cacheTimestamp = res.data.updatedAt || new Date().toISOString();
-                        renderTargeted();
-                        showToast('✅ تم تحديث البيانات بنجاح');
-                    }
-                })
-                .catch(err => {
-                    showLoading(false);
-                    showToast('❌ ' + err.message);
-                });
+        function debouncedSync() {
+            if (syncTimeout) clearTimeout(syncTimeout);
+            document.getElementById('syncMiniDot').className = 'status-dot syncing';
+            document.getElementById('syncMiniText').textContent = 'جاري المزامنة...';
+            syncTimeout = setTimeout(() => { syncToGoogleSheets_POST(); }, 2000);
         }
 
         function testConnection() {
             showLoading(true);
-            showToast('جاري اختبار الاتصال...');
+            const statusEl = document.getElementById('loadingStatus');
+            if (statusEl) statusEl.textContent = 'جاري اختبار الاتصال...';
             callGAS_POST('test')
                 .then(res => {
                     showLoading(false);
@@ -408,30 +520,19 @@
                         document.getElementById('connectionStatus').innerHTML = '<span style="color:var(--success);">✅ الاتصال بالسيرفر مستقر</span>';
                     } else { showToast('❌ فشل الاتصال'); }
                 })
-                .catch(err => {
-                    showLoading(false);
-                    showToast('❌ ' + err.message);
-                });
+                .catch(err => { showLoading(false); showToast('❌ ' + err.message); });
         }
 
         function initializeSheets() {
             showLoading(true);
+            const statusEl = document.getElementById('loadingStatus');
+            if (statusEl) statusEl.textContent = 'جاري تهيئة الأوراق...';
             callGAS_POST('initializeSheets')
                 .then(res => {
                     showLoading(false);
-                    if (res && res.success) {
-                        showToast('✅ تم تهيئة الأوراق بنجاح');
-                    }
+                    if (res && res.success) { showToast('✅ تم تهيئة الأوراق بنجاح'); }
                 })
-                .catch(err => {
-                    showLoading(false);
-                    showToast('❌ ' + err.message);
-                });
-        }
-
-        function formatPassForSheet(p) {
-            var cp = cleanPass(p);
-            return /^\d+$/.test(cp) ? "'" + cp : cp;
+                .catch(err => { showLoading(false); showToast('❌ ' + err.message); });
         }
 
         function renderTargeted() {
@@ -444,23 +545,6 @@
             populateLoginSelect();
             populateCheckboxes();
             applyPermissions();
-        }
-
-        function renderAll() { renderTargeted(); }
-
-        function loadData() {
-            loadNextIds();
-            try {
-                const stored = localStorage.getItem(STORE_KEY);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    Object.assign(data, parsed);
-                }
-                if (!data.users.find(u => u.username === 'admin')) {
-                    data.users.push({ id: nextIds.user++, username: 'admin', password: 'admin123', role: 'admin' });
-                    saveNextIds();
-                }
-            } catch(e) {}
         }
 
         function saveDataLocalOnly() {
@@ -483,14 +567,9 @@
                 var page = btn.dataset.page;
                 var show = true;
                 if (isPhotographer) {
-                    // المصور يرى الرئيسية، إضافة واجب، السجل فقط
-                    if (['photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) {
-                        show = false;
-                    }
+                    if (['photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) { show = false; }
                 } else if (isUser) {
-                    if (['tasks', 'photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) {
-                        show = false;
-                    }
+                    if (['tasks', 'photographers', 'users', 'sync', 'settings'].indexOf(page) !== -1) { show = false; }
                 }
                 btn.style.display = show ? 'flex' : 'none';
             });
@@ -524,7 +603,6 @@
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#888;">لا توجد بيانات</td></tr>';
                 return;
             }
-            // إخفاء كلمات المرور وعرضها بشكل آمن (******)
             tbody.innerHTML = data.photographers.map((p, idx) => `<tr><td>${idx+1}</td><td><strong>${p.name}</strong></td><td>${p.role || 'مصور'}</td><td>******</td></tr>`).join('');
         }
 
@@ -566,19 +644,11 @@
             const password = cleanPass(document.getElementById('loginPassword').value);
             if (!val) { showToast('الرجاء اختيار مستخدم'); return; }
             
-            if (val === 'admin') {
-                // التحقق من حساب الـ admin المخزن في قاعدة البيانات بشكل آمن
-                const adminUser = data.users.find(x => x.username === 'admin');
-                if (!adminUser || cleanPass(adminUser.password) !== password) {
-                    showToast('كلمة المرور غير صحيحة');
-                    return;
-                }
-                currentUser = { type: 'admin', id: adminUser.id, name: 'admin', role: 'admin' };
-            } else if (val.startsWith('user_')) {
-                const id = parseInt(val.split('_')[1]);
-                const u = data.users.find(x => x.id === id);
+            if (val === 'admin' || val.startsWith('user_')) {
+                const username = val === 'admin' ? 'admin' : data.users.find(x => x.id === parseInt(val.split('_')[1]))?.username;
+                const u = data.users.find(x => x.username === username);
                 if (!u || cleanPass(u.password) !== password) { showToast('كلمة المرور غير صحيحة'); return; }
-                currentUser = { type: 'user', id: u.id, name: u.username, role: u.role };
+                currentUser = { type: 'admin', id: u.id, name: u.username, role: u.role };
             } else if (val.startsWith('photographer_')) {
                 const id = parseInt(val.split('_')[1]);
                 const ph = data.photographers.find(x => x.id === id);
@@ -675,15 +745,57 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        // 5. دالة التهيئة الكاملة (App Startup)
+        async function initializeApp() {
             loadData();
+            populateLoginSelect();
+            
+            if (!navigator.onLine) {
+                showToast('⚠️ لا يوجد اتصال بالإنترنت، عرض البيانات المحلية');
+                updateClock();
+                setInterval(updateClock, 1000);
+                document.getElementById('taskDate').value = new Date().toISOString().slice(0, 10);
+                return;
+            }
+            
+            if (GAS_CONFIG.webAppUrl) {
+                document.getElementById('webAppUrlInput').value = GAS_CONFIG.webAppUrl;
+                showLoginLoading(true, 'جاري تحميل أحدث البيانات...');
+                
+                try {
+                    await loadFromSheet();
+                    populateLoginSelect();
+                    renderTargeted();
+                    showLoginLoading(false);
+                    showToast('✅ تم تحديث البيانات بنجاح');
+                } catch (error) {
+                    showLoginLoading(false);
+                    showToast('⚠️ استخدام البيانات المحلية (غير متزامن)');
+                }
+            }
+            
             updateClock();
             setInterval(updateClock, 1000);
             document.getElementById('taskDate').value = new Date().toISOString().slice(0, 10);
-            if (GAS_CONFIG.webAppUrl) {
-                document.getElementById('webAppUrlInput').value = GAS_CONFIG.webAppUrl;
-                loadFromSheet();
-            }
+        }
+
+        // 6. دالة المزامنة التلقائية الدورية
+        function startAutoSync() {
+            setInterval(() => {
+                if (navigator.onLine && GAS_CONFIG.webAppUrl) {
+                    loadFromSheet()
+                        .then(() => {
+                            populateLoginSelect();
+                            renderTargeted();
+                        })
+                        .catch(() => {});
+                }
+            }, 300000); // كل 5 دقائق
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            startAutoSync();
         });
     </script>
 </body>
